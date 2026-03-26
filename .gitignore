@@ -1,0 +1,42 @@
+# Output directory
+/output/
+
+# Images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.bmp
+*.ico
+*.webp
+*.tiff
+
+# Logs
+*.log
+
+# TeX temporary files
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fls
+*.fdb_latexmk
+*.idx
+*.ilg
+*.ind
+*.lof
+*.lot
+*.out
+*.toc
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+*.bcf
+*.run.xml
+
+# Environments and IDEs
+.venv/
+.vscode/
