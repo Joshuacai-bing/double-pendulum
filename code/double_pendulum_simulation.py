@@ -268,6 +268,7 @@ def init():
     return line1, line2, mass1, mass2, trajectory, theta1_line, theta2_line, phase1_line, ke_line, pe_line, te_line, lyap_line, time_text
 
 def update(frame):
+    global traj_x, traj_y
     # Update pendulum
     line1.set_data([0, x1[frame]], [0, y1[frame]])
     line2.set_data([x1[frame], x2[frame]], [y1[frame], y2[frame]])

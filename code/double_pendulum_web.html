@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>理想双摆物理模拟系统 (RK4)</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --background: #ecf0f1;
+            --panel: #ffffff;
+            --text: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .panel {
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        .controls {
+            flex: 1;
+            min-width: 320px;
+            max-width: 400px;
+        }
+
+        .visuals {
+            flex: 2;
+            min-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 { margin-top: 0; color: var(--secondary); font-size: 22px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        h2 { font-size: 16px; color: var(--secondary); margin: 15px 0 10px 0; }
+
+        .control-group { margin-bottom: 12px; }
+        .control-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        .control-row { display: flex; align-items: center; gap: 10px; }
+        
+        input[type="range"] { flex: 1; cursor: pointer; }
+        input[type="number"] { width: 70px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; }
+        select { padding: 4px; border: 1px solid #ccc; border-radius: 4px; width: 100%; }
+
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        button:active { transform: scale(0.98); }
+        button:hover { opacity: 0.9; }
+        .btn-play { background-color: var(--success); }
+        .btn-reset { background-color: var(--danger); }
+        .btn-export { background-color: var(--primary); }
+
+        .canvas-container { position: relative; width: 100%; display: flex; justify-content: center; background: #fafafa; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; }
+        canvas { display: block; cursor: crosshair; }
+        
+        #pendulumCanvas { width: 100%; max-width: 600px; height: auto; aspect-ratio: 1/1; }
+        #plotCanvas { width: 100%; height: 250px; background: white; border-radius: 8px; border: 1px solid #ddd; }
+
+        .stats-box {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 16px; height: 16px; border-radius: 4px; }
+        .c-th1 { background-color: #e74c3c; }
+        .c-th2 { background-color: #3498db; }
+
+        .hint { font-size: 12px; color: #7f8c8d; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 左侧控制面板 -->
+    <div class="panel controls">
+        <h1>⚙️ 双摆系统参数配置</h1>
+        
+        <h2>物理参数</h2>
+        <div class="control-group">
+            <label>摆1 质量 m₁ (kg)</label>
+            <div class="control-row">
+                <input type="range" id="m1_slider" min="0.1" max="10" step="0.1" value="1">
+                <input type="number" id="m1_num" min="0.1" step="0.1" value="1">
+            </div>
+        </div>
+        <div class="control-group">
+            <label>摆2 质量 m₂ (kg)</label>
+            <div class="control-row">
+                <input type="range" id="m2_slider" min="0.1" max="10" step="0.1" value="1">
+                <input type="number" id="m2_num" min="0.1" step="0.1" value="1">
+            </div>
+        </div>
+        <div class="control-group">
+            <label>摆1 绳长 L₁ (m)</label>
+            <div class="control-row">
+                <input type="range" id="l1_slider" min="0.5" max="5" step="0.1" value="1">
+                <input type="number" id="l1_num" min="0.5" step="0.1" value="1">
+            </div>
+        </div>
+        <div class="control-group">
+            <label>摆2 绳长 L₂ (m)</label>
+            <div class="control-row">
+                <input type="range" id="l2_slider" min="0.5" max="5" step="0.1" value="1">
+                <input type="number" id="l2_num" min="0.5" step="0.1" value="1">
+            </div>
+        </div>
+        <div class="control-group">
+            <label>重力加速度 g (m/s²)</label>
+            <div class="control-row">
+                <input type="range" id="g_slider" min="1" max="25" step="0.1" value="9.8">
+                <input type="number" id="g_num" min="1" step="0.1" value="9.8">
+            </div>
+        </div>
+
+        <h2>初始条件 (可直接在画布拖拽)</h2>
+        <div class="control-group">
+            <label>摆1 初始角度 θ₁ (°)</label>
+            <div class="control-row">
+                <input type="range" id="th1_slider" min="-180" max="180" step="1" value="90">
+                <input type="number" id="th1_num" value="90">
+            </div>
+        </div>
+        <div class="control-group">
+            <label>摆2 初始角度 θ₂ (°)</label>
+            <div class="control-row">
+                <input type="range" id="th2_slider" min="-180" max="180" step="1" value="90">
+                <input type="number" id="th2_num" value="90">
+            </div>
+        </div>
+
+        <h2>模拟设置</h2>
+        <div class="control-group">
+            <label>积分方法</label>
+            <select id="method_select">
+                <option value="rk4">四阶龙格-库塔法 (RK4) - 推荐</option>
+                <option value="euler">欧拉法 (Euler) - 仅对比漂移</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>时间步长 dt (s)</label>
+            <div class="control-row">
+                <input type="number" id="dt_num" min="0.001" max="0.1" step="0.001" value="0.01">
+            </div>
+            <div class="hint">较小的dt能提高精度，但也需要更多计算量</div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-play" id="btn_play">开始 / 暂停</button>
+            <button class="btn-reset" id="btn_reset">重置模拟</button>
+        </div>
+        <div class="button-group">
+            <button class="btn-export" id="btn_export">导出 CSV 数据</button>
+        </div>
+
+        <div class="stats-box" id="stats_box">
+            时间: 0.00 s<br>
+            动能 (T): 0.000 J<br>
+            势能 (V): 0.000 J<br>
+            总能量 (E): 0.000 J<br>
+            能量漂移: 0.0000 %
+        </div>
+    </div>
+
+    <!-- 右侧可视化面板 -->
+    <div class="visuals">
+        <!-- 动画区 -->
+        <div class="panel">
+            <div class="canvas-container">
+                <canvas id="pendulumCanvas" width="600" height="600"></canvas>
+            </div>
+            <div class="hint" style="text-align:center; margin-top:10px;">💡 提示：在暂停或重置状态下，可以直接用鼠标拖拽小球来设置初始角度。</div>
+        </div>
+
+        <!-- 曲线图区 -->
+        <div class="panel">
+            <div class="legend">
+                <div class="legend-item"><div class="color-box c-th1"></div> θ₁ (角度)</div>
+                <div class="legend-item"><div class="color-box c-th2"></div> θ₂ (角度)</div>
+            </div>
+            <canvas id="plotCanvas" width="800" height="250"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    /**
+     * 双摆系统物理引擎与可视化脚本
+     */
+
+    // --- 全局变量与状态 ---
+    let isRunning = false;
+    let t = 0;
+    // 状态向量: [θ1, ω1, θ2, ω2] (单位: 弧度, 弧度/秒)
+    let state = [Math.PI/2, 0, Math.PI/2, 0];
+    
+    let params = { m1: 1, m2: 1, l1: 1, l2: 1, g: 9.81, dt: 0.01, method: 'rk4' };
+    let initialEnergy = 0;
+    
+    // 数据记录
+    let trailData = [];     // 用于画尾迹 [{x, y}]
+    let plotData = [];      // 用于画曲线 [{t, th1, th2}]
+    let lastRecordTime = 0;
+    const MAX_TRAIL = 150;
+    const MAX_PLOT_POINTS = 500; // 记录多少个数据点在屏幕上
+
+    // --- DOM 元素绑定 ---
+    const ids = ['m1', 'm2', 'l1', 'l2', 'g', 'th1', 'th2'];
+    const inputs = {};
+    ids.forEach(id => {
+        inputs[id] = {
+            slider: document.getElementById(id + '_slider'),
+            num: document.getElementById(id + '_num')
+        };
+    });
+    const dtNum = document.getElementById('dt_num');
+    const methodSelect = document.getElementById('method_select');
+    
+    const btnPlay = document.getElementById('btn_play');
+    const btnReset = document.getElementById('btn_reset');
+    const btnExport = document.getElementById('btn_export');
+    const statsBox = document.getElementById('stats_box');
+
+    const penCanvas = document.getElementById('pendulumCanvas');
+    const penCtx = penCanvas.getContext('2d');
+    const plotCanvas = document.getElementById('plotCanvas');
+    const plotCtx = plotCanvas.getContext('2d');
+
+    // --- 物理引擎 ---
+
+    // 计算系统导数 (拉格朗日方程推导结果)
+    function getDerivatives(currentState) {
+        let [th1, w1, th2, w2] = currentState;
+        let { m1, m2, l1, l2, g } = params;
+
+        let delta = th1 - th2;
+        let den = 2 * m1 + m2 - m2 * Math.cos(2 * delta);
+
+        // θ1 的角加速度 (α1)
+        let num1 = -g * (2 * m1 + m2) * Math.sin(th1) 
+                   - m2 * g * Math.sin(th1 - 2 * th2) 
+                   - 2 * Math.sin(delta) * m2 * (w2 * w2 * l2 + w1 * w1 * l1 * Math.cos(delta));
+        let alpha1 = num1 / (l1 * den);
+
+        // θ2 的角加速度 (α2)
+        let num2 = 2 * Math.sin(delta) * (
+                    w1 * w1 * l1 * (m1 + m2) 
+                    + g * (m1 + m2) * Math.cos(th1) 
+                    + w2 * w2 * l2 * m2 * Math.cos(delta)
+                   );
+        let alpha2 = num2 / (l2 * den);
+
+        return [w1, alpha1, w2, alpha2]; // [dθ1/dt, dω1/dt, dθ2/dt, dω2/dt]
+    }
+
+    // 四阶龙格-库塔法 (RK4)
+    function rk4Step(s, dt) {
+        let k1 = getDerivatives(s);
+        
+        let s2 = s.map((val, i) => val + 0.5 * dt * k1[i]);
+        let k2 = getDerivatives(s2);
+        
+        let s3 = s.map((val, i) => val + 0.5 * dt * k2[i]);
+        let k3 = getDerivatives(s3);
+        
+        let s4 = s.map((val, i) => val + dt * k3[i]);
+        let k4 = getDerivatives(s4);
+
+        return s.map((val, i) => val + (dt / 6) * (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]));
+    }
+
+    // 欧拉法 (仅作对比，不稳定)
+    function eulerStep(s, dt) {
+        let d = getDerivatives(s);
+        return s.map((val, i) => val + d[i] * dt);
+    }
+
+    // 能量计算
+    function getEnergy(s) {
+        let [th1, w1, th2, w2] = s;
+        let { m1, m2, l1, l2, g } = params;
+
+        // 动能 T
+        let T = 0.5 * (m1 + m2) * l1 * l1 * w1 * w1 
+              + 0.5 * m2 * l2 * l2 * w2 * w2 
+              + m2 * l1 * l2 * w1 * w2 * Math.cos(th1 - th2);
+        
+        // 势能 V (设悬挂点为 y=0，向下为正 y，则势能为负)
+        let y1 = l1 * Math.cos(th1);
+        let y2 = y1 + l2 * Math.cos(th2);
+        let V = -(m1 + m2) * g * y1 - m2 * g * (l2 * Math.cos(th2));
+
+        return { T, V, E: T + V };
+    }
+
+    // --- 可视化 ---
+    
+    // 将极坐标转换为笛卡尔坐标
+    function getPositions(s) {
+        let [th1, _, th2, __] = s;
+        // 动态缩放比例，使得系统始终适配画布
+        let maxL = params.l1 + params.l2;
+        let scale = (penCanvas.width / 2.5) / maxL;
+        
+        let cx = penCanvas.width / 2;
+        let cy = penCanvas.height / 3; // 悬挂点偏上
+
+        let x1 = cx + params.l1 * scale * Math.sin(th1);
+        let y1 = cy + params.l1 * scale * Math.cos(th1);
+        
+        let x2 = x1 + params.l2 * scale * Math.sin(th2);
+        let y2 = y1 + params.l2 * scale * Math.cos(th2);
+
+        return { cx, cy, x1, y1, x2, y2, scale };
+    }
+
+    function drawPendulum() {
+        penCtx.clearRect(0, 0, penCanvas.width, penCanvas.height);
+        let pos = getPositions(state);
+
+        // 绘制尾迹
+        if (trailData.length > 1) {
+            penCtx.beginPath();
+            penCtx.moveTo(trailData[0].x, trailData[0].y);
+            for (let i = 1; i < trailData.length; i++) {
+                penCtx.lineTo(trailData[i].x, trailData[i].y);
+            }
+            penCtx.strokeStyle = 'rgba(52, 152, 219, 0.4)';
+            penCtx.lineWidth = 2;
+            penCtx.stroke();
+        }
+
+        // 绘制杆
+        penCtx.beginPath();
+        penCtx.moveTo(pos.cx, pos.cy);
+        penCtx.lineTo(pos.x1, pos.y1);
+        penCtx.lineTo(pos.x2, pos.y2);
+        penCtx.strokeStyle = '#333';
+        penCtx.lineWidth = 4;
+        penCtx.lineCap = 'round';
+        penCtx.lineJoin = 'round';
+        penCtx.stroke();
+
+        // 绘制悬挂点
+        penCtx.beginPath();
+        penCtx.arc(pos.cx, pos.cy, 6, 0, 2 * Math.PI);
+        penCtx.fillStyle = '#2c3e50';
+        penCtx.fill();
+
+        // 计算球的大小 (与质量的平方根成正比，视觉效果好)
+        let r1 = Math.max(10, Math.sqrt(params.m1) * 8);
+        let r2 = Math.max(10, Math.sqrt(params.m2) * 8);
+
+        // 绘制质量 1
+        penCtx.beginPath();
+        penCtx.arc(pos.x1, pos.y1, r1, 0, 2 * Math.PI);
+        penCtx.fillStyle = '#e74c3c';
+        penCtx.fill();
+        penCtx.stroke();
+
+        // 绘制质量 2
+        penCtx.beginPath();
+        penCtx.arc(pos.x2, pos.y2, r2, 0, 2 * Math.PI);
+        penCtx.fillStyle = '#3498db';
+        penCtx.fill();
+        penCtx.stroke();
+    }
+
+    function drawPlot() {
+        plotCtx.clearRect(0, 0, plotCanvas.width, plotCanvas.height);
+        if (plotData.length < 2) return;
+
+        let w = plotCanvas.width;
+        let h = plotCanvas.height;
+        let margin = { top: 20, right: 20, bottom: 30, left: 50 };
+        let drawW = w - margin.left - margin.right;
+        let drawH = h - margin.top - margin.bottom;
+
+        // 绘制坐标轴
+        plotCtx.beginPath();
+        plotCtx.moveTo(margin.left, margin.top);
+        plotCtx.lineTo(margin.left, h - margin.bottom);
+        plotCtx.lineTo(w - margin.right, h - margin.bottom);
+        plotCtx.strokeStyle = '#aaa';
+        plotCtx.lineWidth = 1;
+        plotCtx.stroke();
+
+        // 寻找时间范围
+        let tMin = plotData[0].t;
+        let tMax = plotData[plotData.length - 1].t;
+        if (tMax - tMin < 5) tMax = tMin + 5; // 最少显示 5 秒跨度
+
+        // 映射函数
+        const mapX = tVal => margin.left + ((tVal - tMin) / (tMax - tMin)) * drawW;
+        // 角度范围固定在 -180 到 180 (或稍微大一点以防裁剪)
+        const mapY = thVal => margin.top + drawH / 2 - (thVal / 200) * (drawH / 2);
+
+        // 辅助函数画线
+        const drawLine = (key, color) => {
+            plotCtx.beginPath();
+            let started = false;
+            for (let i = 0; i < plotData.length; i++) {
+                let d = plotData[i];
+                let x = mapX(d.t);
+                // 角度转度并限制在 -180~180 之间，以防数值过大
+                let deg = ((d[key] * 180 / Math.PI) % 360 + 360) % 360; 
+                if (deg > 180) deg -= 360;
+
+                let y = mapY(deg);
+                
+                // 避免画出跨越整个屏幕的突变竖线（相位卷绕）
+                if (i > 0) {
+                    let prevDeg = ((plotData[i-1][key] * 180 / Math.PI) % 360 + 360) % 360;
+                    if (prevDeg > 180) prevDeg -= 360;
+                    if (Math.abs(deg - prevDeg) > 300) {
+                        plotCtx.stroke();
+                        plotCtx.beginPath();
+                        started = false;
+                    }
+                }
+
+                if (!started) {
+                    plotCtx.moveTo(x, y);
+                    started = true;
+                } else {
+                    plotCtx.lineTo(x, y);
+                }
+            }
+            plotCtx.strokeStyle = color;
+            plotCtx.lineWidth = 2;
+            plotCtx.stroke();
+        };
+
+        // 绘制 y=0 的基准线
+        plotCtx.beginPath();
+        plotCtx.moveTo(margin.left, mapY(0));
+        plotCtx.lineTo(w - margin.right, mapY(0));
+        plotCtx.strokeStyle = '#eee';
+        plotCtx.stroke();
+
+        drawLine('th1', '#e74c3c');
+        drawLine('th2', '#3498db');
+
+        // Y轴刻度标签
+        plotCtx.fillStyle = '#666';
+        plotCtx.font = '12px sans-serif';
+        plotCtx.textAlign = 'right';
+        plotCtx.textBaseline = 'middle';
+        plotCtx.fillText('180°', margin.left - 5, mapY(180));
+        plotCtx.fillText('0°', margin.left - 5, mapY(0));
+        plotCtx.fillText('-180°', margin.left - 5, mapY(-180));
+        
+        // X轴刻度标签
+        plotCtx.textAlign = 'center';
+        plotCtx.textBaseline = 'top';
+        plotCtx.fillText(tMin.toFixed(1) + 's', margin.left, h - margin.bottom + 5);
+        plotCtx.fillText(tMax.toFixed(1) + 's', w - margin.right, h - margin.bottom + 5);
+    }
+
+    function updateStats() {
+        let { T, V, E } = getEnergy(state);
+        let drift = initialEnergy !== 0 ? Math.abs((E - initialEnergy) / initialEnergy) * 100 : 0;
+        
+        statsBox.innerHTML = `
+            时间 (t) : ${t.toFixed(2)} s<br>
+            动能 (T) : ${T.toFixed(4)} J<br>
+            势能 (V) : ${V.toFixed(4)} J<br>
+            总能量(E) : ${E.toFixed(4)} J<br>
+            能量漂移 : <span style="color:${drift > 1 ? '#e74c3c' : '#00ff00'}">${drift.toFixed(6)} %</span>
+            ${params.method === 'euler' ? '<br><span style="color:#e74c3c">欧拉法能量不守恒，漂移会迅速增加！</span>' : ''}
+        `;
+    }
+
+    // --- 交互与事件 ---
+
+    function readParams() {
+        ids.forEach(id => {
+            let val = parseFloat(inputs[id].num.value);
+            // 将角度转化为弧度供内部使用
+            if (id === 'th1' || id === 'th2') {
+                params[id] = val * Math.PI / 180;
+            } else {
+                params[id] = val;
+            }
+        });
+        params.dt = parseFloat(dtNum.value);
+        params.method = methodSelect.value;
+    }
+
+    function syncInputs(id, value) {
+        inputs[id].slider.value = value;
+        inputs[id].num.value = value;
+    }
+
+    function resetSimulation() {
+        readParams();
+        t = 0;
+        state = [params.th1, 0, params.th2, 0]; // 初始速度为0
+        trailData = [];
+        plotData = [];
+        lastRecordTime = 0;
+        initialEnergy = getEnergy(state).E;
+        
+        drawPendulum();
+        drawPlot();
+        updateStats();
+    }
+
+    // 绑定输入框双向同步
+    ids.forEach(id => {
+        inputs[id].slider.addEventListener('input', (e) => {
+            inputs[id].num.value = e.target.value;
+            if (!isRunning) { resetSimulation(); }
+        });
+        inputs[id].num.addEventListener('change', (e) => {
+            inputs[id].slider.value = e.target.value;
+            if (!isRunning) { resetSimulation(); }
+        });
+    });
+
+    dtNum.addEventListener('change', readParams);
+    methodSelect.addEventListener('change', readParams);
+
+    btnPlay.addEventListener('click', () => {
+        isRunning = !isRunning;
+        btnPlay.innerText = isRunning ? "暂停" : "开始 / 暂停";
+        btnPlay.style.backgroundColor = isRunning ? "#f39c12" : "var(--success)";
+        if (isRunning) lastFrameTime = performance.now();
+    });
+
+    btnReset.addEventListener('click', () => {
+        isRunning = false;
+        btnPlay.innerText = "开始 / 暂停";
+        btnPlay.style.backgroundColor = "var(--success)";
+        resetSimulation();
+    });
+
+    btnExport.addEventListener('click', () => {
+        if (plotData.length === 0) return alert('没有可导出的数据，请先运行模拟。');
+        let csv = "Time_s,Theta1_deg,Theta2_deg\n";
+        plotData.forEach(d => {
+            let d1 = ((d.th1 * 180 / Math.PI) % 360 + 360) % 360;
+            let d2 = ((d.th2 * 180 / Math.PI) % 360 + 360) % 360;
+            if (d1 > 180) d1 -= 360;
+            if (d2 > 180) d2 -= 360;
+            csv += `${d.t.toFixed(4)},${d1.toFixed(4)},${d2.toFixed(4)}\n`;
+        });
+        let blob = new Blob([csv], { type: 'text/csv' });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = 'double_pendulum_data.csv';
+        a.click();
+    });
+
+    // --- 拖拽交互 ---
+    let draggingNode = 0; // 0: None, 1: Mass1, 2: Mass2
+
+    penCanvas.addEventListener('mousedown', e => {
+        if (isRunning) return; // 运行中不允许拖拽
+        
+        let rect = penCanvas.getBoundingClientRect();
+        let mouseX = (e.clientX - rect.left) * (penCanvas.width / rect.width);
+        let mouseY = (e.clientY - rect.top) * (penCanvas.height / rect.height);
+        
+        let pos = getPositions(state);
+        let dist1 = Math.hypot(mouseX - pos.x1, mouseY - pos.y1);
+        let dist2 = Math.hypot(mouseX - pos.x2, mouseY - pos.y2);
+        
+        // 增加点击判定范围
+        if (dist2 < 30) draggingNode = 2;
+        else if (dist1 < 30) draggingNode = 1;
+    });
+
+    penCanvas.addEventListener('mousemove', e => {
+        if (draggingNode === 0 || isRunning) return;
+        
+        let rect = penCanvas.getBoundingClientRect();
+        let mouseX = (e.clientX - rect.left) * (penCanvas.width / rect.width);
+        let mouseY = (e.clientY - rect.top) * (penCanvas.height / rect.height);
+        
+        let pos = getPositions(state);
+
+        if (draggingNode === 1) {
+            // 拖拽质点1，以悬挂点为中心
+            let dx = mouseX - pos.cx;
+            let dy = mouseY - pos.cy;
+            let angle = Math.atan2(dx, dy); // 注意我们的 y 轴向下，正常笛卡尔系是 atan2(y,x)
+            state[0] = angle;
+            syncInputs('th1', (angle * 180 / Math.PI).toFixed(1));
+        } else if (draggingNode === 2) {
+            // 拖拽质点2，以质点1为中心
+            let dx = mouseX - pos.x1;
+            let dy = mouseY - pos.y1;
+            let angle = Math.atan2(dx, dy);
+            state[2] = angle;
+            syncInputs('th2', (angle * 180 / Math.PI).toFixed(1));
+        }
+        
+        state[1] = 0; // 重置角速度
+        state[3] = 0;
+        
+        readParams();
+        initialEnergy = getEnergy(state).E;
+        drawPendulum();
+        updateStats();
+    });
+
+    window.addEventListener('mouseup', () => {
+        draggingNode = 0;
+    });
+
+    // --- 主循环 ---
+    let lastFrameTime = performance.now();
+    let timeAccumulator = 0;
+
+    function loop(currentTime) {
+        if (isRunning) {
+            // 计算两帧之间实际经过的时间 (秒)
+            let frameTime = (currentTime - lastFrameTime) / 1000;
+            lastFrameTime = currentTime;
+            
+            // 防止切后台后回来发生巨大的时间跳跃导致模拟崩溃
+            if (frameTime > 0.1) frameTime = 0.1;
+
+            timeAccumulator += frameTime;
+            let dt = params.dt;
+
+            // 以固定的物理时间步长推进系统
+            while (timeAccumulator >= dt) {
+                if (params.method === 'rk4') {
+                    state = rk4Step(state, dt);
+                } else {
+                    state = eulerStep(state, dt);
+                }
+                t += dt;
+                timeAccumulator -= dt;
+
+                // 记录数据 (约每 0.05 秒记录一次以保持图表流畅但不过度占用内存)
+                if (t - lastRecordTime >= 0.05) {
+                    plotData.push({ t: t, th1: state[0], th2: state[2] });
+                    if (plotData.length > MAX_PLOT_POINTS) plotData.shift();
+                    
+                    let pos = getPositions(state);
+                    trailData.push({ x: pos.x2, y: pos.y2 });
+                    if (trailData.length > MAX_TRAIL) trailData.shift();
+
+                    lastRecordTime = t;
+                }
+            }
+
+            drawPendulum();
+            drawPlot();
+            updateStats();
+        }
+        requestAnimationFrame(loop);
+    }
+
+    // 初始化启动
+    resetSimulation();
+    requestAnimationFrame(loop);
+
+</script>
+</body>
+</html>
