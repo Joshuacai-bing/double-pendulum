@@ -44,27 +44,23 @@
 *(e.g., links to other subjects you are studying, personal interest, future plans, knowledge/skills you want to improve, reasons why the topic is important)*
 
 > After completing A-Level M1 and M2, I found that Newtonian force analysis becomes impractical for multi-object systems. The simple pendulum and projectile motion with air resistance were manageable, but adding a second pendulum creates coupled equations that are extremely messy to derive via free-body diagrams.  I then learned ordinary differential equations in FP2 and P4. Recognising that ODEs are not merely a mathematical exercise, I applied them to the simple pendulum (second‑order linear ODE) and to projectile motion with linear drag. These practices confirmed that differential equations allow systematic handling of problems where forces vary with position or velocity.  The double pendulum under small‑angle approximation is a natural next step. Its two degrees of freedom lead to a pair of coupled linear ODEs – a classic system for studying normal modes. Using Lagrangian mechanics instead of force analysis avoids tedious constraint forces and yields the equations cleanly. This model is neither trivial (like a single pendulum) nor too advanced (like a continuous system). It bridges A‑Level further maths to university analytical mechanics.  Working on this EPQ also prepares me for engineering or physics degrees, where coupled oscillators and variational principles appear repeatedly. Solving the double pendulum solidifies my ability to translate physical systems into differential equations and interpret their solutions.
->
->
->
->
 
 ***
 
 ## Section Three: Activities and timescales
 
-| Activities to be carried out during the project *(e.g., research, data collection, numerical analysis, writing, preparing for the presentation, etc.)* | How long this will take |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------- |
-| **Theoretical Research & Derivation**: Study Lagrangian mechanics, derive the dynamic equations for the double pendulum under small-angle approximation, and find the normal modes (frequencies). | 1.5 weeks |
-| **Computer Simulation**: Write Python simulation code for the small-angle double pendulum using Trae IDE, and visualize the theoretical results (matplotlib). | 1 week |
-| **Experiment Setup & Data Collection**: Conduct single pendulum damping tests, perform double pendulum experiments, record videos, and extract trajectory data using Tracker. | 1.5 weeks |
-| **Data Analysis**: Compare experimental data (angular frequencies) with theoretical predictions and simulation results. Analyze errors and damping effects. | 1 week |
-| **Report Writing (First Draft)**: Write the 6000-word dissertation in LaTeX, covering introduction, theory, simulation, experimental design, results, and conclusion. | 2 weeks |
-| **Finalisation & Presentation**: Refine the final essay, complete the Activity Log and PPF, finalize the GitHub repository, and prepare the presentation PPT. | 1 week |
-| **Milestone one: First Draft Submission** (6000 words, basic formatting met) | |
-| Target date *(set by tutor-assessor)*: | 17th April |
-| **Milestone two: Final Submission** (Final essay, Activity Log, PPF, GitHub repo, PPT) | |
-| Target date *(set by tutor-assessor)*: | 30th April |
+| Activities to be carried out during the project *(e.g., research, data collection, numerical analysis, writing, preparing for the presentation, etc.)*                                            | How long this will take |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------- |
+| **Theoretical Research & Derivation**: Study Lagrangian mechanics, derive the dynamic equations for the double pendulum under small-angle approximation, and find the normal modes (frequencies). | 1.5 weeks               |
+| **Computer Simulation**: Write Python simulation code for the small-angle double pendulum using Trae IDE, and visualize the theoretical results (matplotlib).                                     | 1 week                  |
+| **Experiment Setup & Data Collection**: Conduct single pendulum damping tests, perform double pendulum experiments, record videos, and extract trajectory data using Tracker.                     | 1.5 weeks               |
+| **Data Analysis**: Compare experimental data (angular frequencies) with theoretical predictions and simulation results. Analyze errors and damping effects.                                       | 1 week                  |
+| **Report Writing (First Draft)**: Write the 6000-word dissertation in LaTeX, covering introduction, theory, simulation, experimental design, results, and conclusion.                             | 2 weeks                 |
+| **Finalisation & Presentation**: Refine the final essay, complete the Activity Log and PPF, finalize the GitHub repository, and prepare the presentation PPT.                                     | 1 week                  |
+| **Milestone one: First Draft Submission** (6000 words, basic formatting met)                                                                                                                      | <br />                  |
+| Target date *(set by tutor-assessor)*:                                                                                                                                                            | 17th April              |
+| **Milestone two: Final Submission** (Final essay, Activity Log, PPF, GitHub repo, PPT)                                                                                                            | <br />                  |
+| Target date *(set by tutor-assessor)*:                                                                                                                                                            | 30th April              |
 
 ***
 
@@ -74,7 +70,47 @@
 
 *(What resources will you need for your research, data collection, write up and presentation e.g., equipment, ICT, libraries, books, journals)*
 
-> <br />
+> **oundational Textbooks & Theoretical Resources**\
+> To develop a rigorous theoretical foundation, I will rely on graduate-level textbooks that provide a comprehensive treatment of Lagrangian mechanics and small oscillations.
+>
+> - **Classical Mechanics (3rd Edition)** by Herbert Goldstein, Charles Poole, and John Safko. Specifically, **Chapter 6: "Small Oscillations"** will be my primary guide for formulating the linearized equations of motion, calculating normal mode frequencies, and deriving the normal coordinates for the double pendulum.
+> - **Mechanics (Volume 1)** by Landau and Lifshitz. I will consult **Section 23: "Small Oscillations"** for its concise, first-principles approach to the general theory of small oscillations, which offers a valuable complementary perspective to Goldstein.
+> - **Classical Mechanics** by John R. Taylor. I will use **Chapter 11: "Coupled Oscillators and Normal Modes"** for its clear, step-by-step derivations and numerous solved examples, which will help me verify my own algebraic derivations.
+>
+> **2. Simulation & AI-Assisted Coding Tools**\
+> To bridge the gap between theory and experiment, I will use computational tools to simulate the system. I plan to leverage AI code editors to expedite the development and debugging of the simulation code.
+>
+> - **Programming Language & Environment:** Python with the following libraries:
+>   - **NumPy/SciPy:** For matrix operations and numerically solving the system of linearized differential equations (ODE solvers like `scipy.integrate.solve_ivp`).
+>   - **Matplotlib/Plotly:** To generate high-quality animations and phase-space plots for visual analysis of the small-angle motion.
+>   - **SymPy:** To perform the symbolic derivation of the Lagrangian and the subsequent linearization, ensuring my algebra is error-free.
+> - **AI Coding Assistant:** I will use an AI code editor (such as GitHub Copilot or Cursor) to assist in:
+>   - Rapidly prototyping the simulation script.
+>   - Debugging errors in numerical integration.
+>   - Generating code for data acquisition and analysis from experimental videos.
+>
+> **3. Experimental & Data Collection Equipment**\
+> To experimentally validate the theoretical and computational results, I will construct a physical double pendulum and acquire motion data.
+>
+> - **Physical Apparatus:**
+>   - Two precisely machined aluminum or steel rods with low-friction bearings at the pivot points to minimize energy loss and ensure the system approximates the idealized model.
+>   - A sturdy support stand clamped to a heavy base to eliminate external vibrations.
+> - **Data Acquisition:**
+>   - A high-speed digital camera (e.g., a modern smartphone capable of 120/240 fps recording or a dedicated USB camera) to capture the motion of the bobs with sufficient temporal resolution for accurate small-angle analysis.
+>   - **Video Analysis Software:** Tracker, an open-source physics video analysis tool, will be essential for digitizing the position-time data of the two bobs from the recorded videos. This data will be compared directly with the simulation outputs.
+>
+> **4. Literature & Visual Learning Resources**\
+> To gain an intuitive understanding of the system's behavior and to find established methodologies, I will use online academic and video platforms.
+>
+> - **Video Platforms (YouTube/Bilibili):** I will use these platforms to study existing experimental setups. Specific channels like "Harvard Natural Sciences Lecture Demonstrations" and "SmarterEveryDay" provide high-quality visualizations of coupled oscillators. I will focus on animations that clearly show the two normal modes (the in-phase and out-of-phase oscillations) to build a qualitative understanding before performing my own experiment.
+> - **Academic Databases:** I will use my university’s library portal to access journals such as the *American Journal of Physics*. I will search for articles like "The Double Pendulum: A Classic Example of Normal Modes" to find established experimental techniques and data analysis methods.
+>
+> **5. Resources for Presentation & Write-up**
+>
+> - **Document Preparation:** LaTeX (Overleaf) for typesetting the theoretical derivations and final report, .
+> - **Presentation Software:** Microsoft PowerPoint or Canva to create clear, professional slides for my final presentation, integrating the simulation animations and experimental video clips.适合非母语阅读 
+>
+>
 
 ### Areas of research
 

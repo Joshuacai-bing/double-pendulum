@@ -142,6 +142,23 @@ In the small-angle linear regime, the general solution is the superposition of t
 \end{equation}
 where $c_{\pm}$ are mode amplitudes set by initial conditions, $\phi_{\pm}$ are initial phases, and $(A_{1,\pm}, A_{2,\pm})$ are eigenvectors associated with each normal mode. This form shows that the observed trajectory is not usually a pure in-phase or out-of-phase oscillation, but a mixed state containing both. When both coefficients are non-zero, energy is distributed across modes and the measured motion may show modulation and phase-mixing effects. The superposition description remains accurate only while linear assumptions hold; for larger amplitudes, non-linear coupling progressively invalidates pure modal superposition and leads to strongly irregular motion.
 
+\subsection{Active Control for Amplitude Reduction}
+In many engineering applications, it is desirable to suppress the oscillations of a double pendulum rapidly. This requires moving beyond passive energy dissipation (such as air drag) to active control. By introducing an external control torque $u(t)$ at the main pivot, the small-angle linearized equations of motion can be reformulated into a standard state-space representation.
+
+Defining the state vector as $\mathbf{x} = [\theta_1, \theta_2, \dot{\theta}_1, \dot{\theta}_2]^T$, the controlled linearized system is governed by:
+\begin{equation}
+\mathbf{\dot{x}} = A\mathbf{x} + B u(t),
+\end{equation}
+where $A$ is the $4 \times 4$ system matrix derived from the mass and stiffness properties of the pendulum, and $B$ is the $4 \times 1$ input matrix mapping the control torque to the angular accelerations.
+
+To achieve optimal amplitude reduction, a Linear Quadratic Regulator (LQR) or similar state-feedback control can be employed. The LQR approach seeks to find a control law $u(t) = -K\mathbf{x}$ that minimizes the quadratic cost function $J$:
+\begin{equation}
+J = \int_{0}^{\infty} \left( \mathbf{x}^T Q \mathbf{x} + u^T R u \right) dt.
+\end{equation}
+Here, $Q$ is a positive semi-definite weight matrix penalizing state deviations (i.e., swing angles and velocities), and $R$ is a positive scalar penalizing the control effort. By solving the continuous-time Algebraic Riccati Equation (CARE), the optimal feedback gain matrix $K$ is determined. 
+
+Applying this control law modifies the system dynamics to $\mathbf{\dot{x}} = (A - BK)\mathbf{x}$. The closed-loop matrix $(A - BK)$ is designed to be strictly Hurwitz, meaning all its eigenvalues possess negative real parts. Physically, this actively injects synthetic damping into the system, drawing energy out of both the in-phase and out-of-phase normal modes, thereby reducing the swing amplitude significantly faster than natural dissipation.
+
 \section{Simulation}
 \subsection{Using a Simple Pendulum to Identify Air Drag}
 The model uses the \textbf{underdamped assumption}: $c^2<4mk$, with small-angle motion.
