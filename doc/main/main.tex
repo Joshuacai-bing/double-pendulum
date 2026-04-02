@@ -142,22 +142,29 @@ In the small-angle linear regime, the general solution is the superposition of t
 \end{equation}
 where $c_{\pm}$ are mode amplitudes set by initial conditions, $\phi_{\pm}$ are initial phases, and $(A_{1,\pm}, A_{2,\pm})$ are eigenvectors associated with each normal mode. This form shows that the observed trajectory is not usually a pure in-phase or out-of-phase oscillation, but a mixed state containing both. When both coefficients are non-zero, energy is distributed across modes and the measured motion may show modulation and phase-mixing effects. The superposition description remains accurate only while linear assumptions hold; for larger amplitudes, non-linear coupling progressively invalidates pure modal superposition and leads to strongly irregular motion.
 
-\subsection{Active Control for Amplitude Reduction}
-In many engineering applications, it is desirable to suppress the oscillations of a double pendulum rapidly. This requires moving beyond passive energy dissipation (such as air drag) to active control. By introducing an external control torque $u(t)$ at the main pivot, the small-angle linearized equations of motion can be reformulated into a standard state-space representation.
+\subsection{Active Control and Rapid Amplitude Reduction}
+In practical engineering applications, it is often desirable to suppress the oscillations of a double pendulum rapidly. Relying solely on passive natural damping (such as air drag and joint friction) is typically insufficient. By introducing an external control torque, we can actively extract energy from the system. Below are several theoretical approaches to achieve this in the small-angle regime.
 
-Defining the state vector as $\mathbf{x} = [\theta_1, \theta_2, \dot{\theta}_1, \dot{\theta}_2]^T$, the controlled linearized system is governed by:
+\subsubsection{Active Damping via Velocity Feedback}
+The most direct method is analogous to adding a viscous damper to a single pendulum. The linearized multi-degree-of-freedom equations of motion can be written in matrix form as:
 \begin{equation}
-\mathbf{\dot{x}} = A\mathbf{x} + B u(t),
+M \ddot{\mathbf{\theta}} + C \dot{\mathbf{\theta}} + K \mathbf{\theta} = \mathbf{u}(t),
 \end{equation}
-where $A$ is the $4 \times 4$ system matrix derived from the mass and stiffness properties of the pendulum, and $B$ is the $4 \times 1$ input matrix mapping the control torque to the angular accelerations.
+where $M, C, K$ are the mass, damping, and stiffness matrices respectively, $\mathbf{\theta} = [\theta_1, \theta_2]^T$, and $\mathbf{u}$ is the control input. If we apply a control law $\mathbf{u} = -K_v \dot{\mathbf{\theta}}$ (where $K_v$ is a positive definite velocity gain matrix), we effectively increase the system's damping matrix to $C + K_v$. This active damping simultaneously dissipates energy from both normal modes, causing the vibrations to decay exponentially. While simple to implement, excessively high gains can lead to an overdamped, sluggish response.
 
-To achieve optimal amplitude reduction, a Linear Quadratic Regulator (LQR) or similar state-feedback control can be employed. The LQR approach seeks to find a control law $u(t) = -K\mathbf{x}$ that minimizes the quadratic cost function $J$:
+\subsubsection{Anti-Phase Excitation and Dynamic Vibration Absorption}
+Another approach draws inspiration from driven single pendulums. In a double pendulum, we can utilize one of the masses to suppress the vibration of the other. 
+If an actuator is placed at the first pivot, it can apply a force perfectly out-of-phase with the measured velocity of the first pendulum, essentially acting as localized active damping.
+A more elegant strategy is to use the second pendulum as an \emph{active dynamic vibration absorber} (similar to a Tuned Mass Damper, TMD). By controlling the torque at the second joint, the virtual natural frequency of the second pendulum can be tuned to match the current vibration frequency of the primary system. The vibrational energy of the first pendulum is rapidly transferred to the second pendulum, where it can be dissipated by the joint's damping.
+
+\subsubsection{Optimal Control (LQR) and Modal Decoupling}
+Because the double pendulum has two distinct normal modes (low-frequency in-phase and high-frequency out-of-phase), simple single-joint feedback might inadvertently suppress one mode while exciting the other. To address this modal coupling, modern control theory offers the Linear Quadratic Regulator (LQR).
+
+Defining the state vector as $\mathbf{x} = [\theta_1, \theta_2, \dot{\theta}_1, \dot{\theta}_2]^T$, the system becomes $\mathbf{\dot{x}} = A\mathbf{x} + B\mathbf{u}$. The LQR method seeks a state-feedback control law $\mathbf{u} = -K\mathbf{x}$ that minimizes the cost function:
 \begin{equation}
-J = \int_{0}^{\infty} \left( \mathbf{x}^T Q \mathbf{x} + u^T R u \right) dt.
+J = \int_{0}^{\infty} \left( \mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} \right) dt.
 \end{equation}
-Here, $Q$ is a positive semi-definite weight matrix penalizing state deviations (i.e., swing angles and velocities), and $R$ is a positive scalar penalizing the control effort. By solving the continuous-time Algebraic Riccati Equation (CARE), the optimal feedback gain matrix $K$ is determined. 
-
-Applying this control law modifies the system dynamics to $\mathbf{\dot{x}} = (A - BK)\mathbf{x}$. The closed-loop matrix $(A - BK)$ is designed to be strictly Hurwitz, meaning all its eigenvalues possess negative real parts. Physically, this actively injects synthetic damping into the system, drawing energy out of both the in-phase and out-of-phase normal modes, thereby reducing the swing amplitude significantly faster than natural dissipation.
+By solving the Algebraic Riccati Equation, we obtain the optimal gain matrix $K$. This shifts the closed-loop poles deeper into the left half of the complex plane, ensuring the fastest possible decay of both modes simultaneously without exceeding the physical limits of the actuators. If both joints are equipped with motors and sensors, LQR is the most reliable and fastest-converging engineering solution for rapid amplitude reduction.
 
 \section{Simulation}
 \subsection{Using a Simple Pendulum to Identify Air Drag}
