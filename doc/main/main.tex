@@ -91,6 +91,19 @@ L &= \frac{1}{2}(m_1 + m_2)l_1^2\dot{\theta}_1^2 + \frac{1}{2}m_2 l_2^2 \dot{\th
 \end{aligned}
 \end{equation}
 
+\subsection{Non-linear Coupling, Fictitious Forces, and Symplectic Integration}
+A critical feature of the Lagrangian derived above is the kinetic energy coupling term, $m_2 l_1 l_2 \dot{\theta}_1 \dot{\theta}_2 \cos(\theta_1 - \theta_2)$. This term indicates that the kinetic energy depends not only on the generalized velocities ($\dot{\theta}_1, \dot{\theta}_2$) but also on the generalized coordinates (specifically the angle difference $\theta_1 - \theta_2$). Consequently, the mass matrix of the system is configuration-dependent, making the system fundamentally non-separable.
+
+When applying the Euler-Lagrange equations, the derivatives of this coupling term naturally give rise to terms that physically represent fictitious forces in the non-inertial rotational reference frame:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Centrifugal Force:} Taking the partial derivative of the Lagrangian with respect to the position coordinate, $\frac{\partial L}{\partial \theta_1}$, produces terms proportional to the square of the angular velocities (e.g., $\dot{\theta}_2^2$). Physically, this represents the centrifugal force, an outward inertial pull exerted by the rotation of one pendulum upon the other.
+    \item \textbf{Coriolis Force:} Taking the time derivative of the generalized momentum, $\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{\theta}_1}\right)$, requires applying the chain rule to the $\cos(\theta_1 - \theta_2)$ term. This generates cross-product velocity terms (e.g., $\dot{\theta}_1 \dot{\theta}_2$). These terms correspond to the Coriolis force, representing a lateral deflection force arising when the relative angle between the two swinging pendulums changes.
+\end{itemize}
+
+These ``forces'' are not external physical interactions but are purely geometric consequences of applying analytical mechanics within a rotating coordinate system. If the full non-linear equations of motion are expressed in the matrix form $M(\mathbf{\theta})\ddot{\mathbf{\theta}} + C(\mathbf{\theta}, \dot{\mathbf{\theta}})\dot{\mathbf{\theta}} + G(\mathbf{\theta}) = 0$, the matrix $C$ is explicitly recognized as the Coriolis and centrifugal force matrix.
+
+Furthermore, the non-separable nature of the system has profound implications for numerical simulations. Because the kinetic energy is coordinate-dependent, standard explicit symplectic integrators (such as the semi-implicit Euler or velocity Verlet algorithms) cannot perfectly preserve symplecticity, inevitably leading to energy drift over long integration periods. To guarantee strict energy conservation and maintain high precision in such non-separable systems, fully implicit symplectic algorithms, such as the Gauss-Legendre Runge-Kutta methods, must be employed.
+
 \subsection{Equations of Motion and Small-Angle Approximation}
 The dynamics of the system are governed by the Euler-Lagrange equations:
 \begin{align*}
@@ -166,87 +179,54 @@ J = \int_{0}^{\infty} \left( \mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{
 \end{equation}
 By solving the Algebraic Riccati Equation, we obtain the optimal gain matrix $K$. This shifts the closed-loop poles deeper into the left half of the complex plane, ensuring the fastest possible decay of both modes simultaneously without exceeding the physical limits of the actuators. If both joints are equipped with motors and sensors, LQR is the most reliable and fastest-converging engineering solution for rapid amplitude reduction.
 
+\subsection{Using a Simple Pendulum to Identify Air Drag: Theoretical Framework}
+
+\textbf{Part I: Theoretical Framework of the Damped Pendulum}
+\begin{enumerate}
+    \item Under the small-angle approximation, the differential equation of motion for a damped simple pendulum is given by:
+    \begin{equation}
+    \ddot{\theta} + 2\beta\dot{\theta} + \omega_0^2\theta = 0
+    \end{equation}
+    \item Assuming a weak damping condition ($\beta < \omega_0$), the general solution to this equation is:
+    \begin{equation}
+    \theta(t) = A_0 \exp(-\beta t) \cos(\omega_d t + \phi_0)
+    \end{equation}
+\end{enumerate}
+
+\textbf{Part II: Physical Significance of Key Parameters}
+\begin{itemize}
+    \item \textbf{Damping Coefficient ($\beta$)}: Measures the rate of energy dissipation from the system due to air drag and friction.
+    \item \textbf{Undamped Natural Frequency ($\omega_0$)}: The inherent frequency at which the pendulum would oscillate if there were no damping ($\sqrt{g/l}$).
+    \item \textbf{Time Constant ($\tau = 1/\beta$)}: The time required for the oscillation amplitude to decay to $1/e$ (approx. 37\%) of its initial value.
+    \item \textbf{Damping Ratio ($\zeta = \beta/\omega_0$)}: A dimensionless parameter that indicates whether the system is underdamped, critically damped, or overdamped.
+    \item \textbf{Relationship between Damped Period ($T_d$) and Undamped Period ($T_0$)}: $T_d = 2\pi / \sqrt{\omega_0^2 - \beta^2}$. This indicates that the presence of damping causes the actual oscillation period to become longer.
+\end{itemize}
+
+\textbf{Part III: Damping Measurement Method (0.37$\times$ Amplitude Decay)}
+\begin{enumerate}
+    \item According to the general solution, the amplitude envelope decays exponentially over time as:
+    \begin{equation}
+    A(t) = A_0 e^{-\beta t}
+    \end{equation}
+    \item When the amplitude decays to $1/e$ (approximately 0.37 times) of its initial value $A_0$, the elapsed time is exactly $t = \tau$ (or $1/\beta$).
+\end{enumerate}
+
+\textbf{Part IV: Experimental Procedure and Calculation}
+\begin{itemize}
+    \item \textbf{Step 1}: Release the pendulum from a small initial angle (less than 5 to 10 degrees) and record the initial maximum amplitude $A_0$.
+    \item \textbf{Step 2}: Start the timer and observe the decay. Record the elapsed time $t_1$ when the maximum amplitude decreases to $0.37 \times A_0$.
+    \item \textbf{Step 3}: Repeat the measurement multiple times to calculate the average decay time $\bar{t}$.
+    \item \textbf{Step 4}: Using the measured average time constant $\tau = \bar{t}$, calculate the damping coefficient as $\beta = 1 / \bar{t}$.
+\end{itemize}
+
+\textbf{Part V: Experimental Precautions}
+\begin{itemize}
+    \item The theoretical derivation relies on the small-angle approximation.
+    \item During the decay measurement, try to avoid interference such as external drafts, initial push, or non-planar (conical) swinging motion.
+\end{itemize}
+
 \section{Simulation}
-\subsection{Using a Simple Pendulum to Identify Air Drag}
-The model uses the \textbf{underdamped assumption}: $c^2<4mk$, with small-angle motion.
-\begin{equation}
-m\ell^2\ddot{\theta}+c\dot{\theta}+mg\ell\,\theta=0
-\end{equation}
-where $\ell$ is pendulum length, $m$ is bob mass, $c$ is air-drag coefficient, $g$ is gravitational acceleration, $\theta$ is angular displacement, and $t$ is time.
 
-Standard form:
-\begin{equation}
-\ddot{\theta}+2a\dot{\theta}+w_0^2\theta=0,\qquad
-a=\frac{c}{2m\ell^2},\qquad
-w_0=\sqrt{\frac{g}{\ell}}
-\end{equation}
-where $a$ is damping parameter and $w_0$ is undamped angular frequency.
-
-Under the underdamped condition, the solution is
-\begin{equation}
-\theta(t)=A e^{-at}\cos(wt+\phi),\qquad
-w=\sqrt{w_0^2-a^2}
-\end{equation}
-where $A$ is amplitude constant, $\phi$ is initial phase, and $w$ is damped angular frequency.
-
-With period-only measurement, use the damped period $T$:
-\begin{equation}
-T=\frac{2\pi}{w},\qquad
-T_0=2\pi\sqrt{\frac{\ell}{g}}
-\end{equation}
-where $T$ is measured damped period and $T_0$ is theoretical undamped period.
-
-Infer damping from period:
-\begin{equation}
-a=\sqrt{\left(\frac{2\pi}{T_0}\right)^2-\left(\frac{2\pi}{T}\right)^2}
-\end{equation}
-Then compute air-drag coefficient:
-\begin{equation}
-c=2m\ell^2 a
-\end{equation}
-
-\subsection{What to Measure and How to Measure}
-\begin{equation}
-\ell,\ m,\ N,\ t_{0,i},\ t_{N,i}\quad (i=1,\ldots,M)
-\end{equation}
-where $N$ is number of full periods per timing run, $M$ is number of trials, $t_{0,i}$ is start time of trial $i$, and $t_{N,i}$ is the time at the end of the $N$th period in trial $i$.
-
-Period in each trial:
-\begin{equation}
-T_i=\frac{t_{N,i}-t_{0,i}}{N}
-\end{equation}
-Mean period:
-\begin{equation}
-\bar{T}=\frac{1}{M}\sum_{i=1}^{M}T_i
-\end{equation}
-Standard deviation (repeatability check):
-\begin{equation}
-s_T=\sqrt{\frac{1}{M-1}\sum_{i=1}^{M}(T_i-\bar{T})^2}
-\end{equation}
-
-Final estimates:
-\begin{equation}
-\bar{a}=\sqrt{\left(\frac{2\pi}{T_0}\right)^2-\left(\frac{2\pi}{\bar{T}}\right)^2},
-\qquad
-\bar{c}=2m\ell^2\bar{a}
-\end{equation}
-Use $\bar{c}$ as the damping coefficient in the double-pendulum simulation.
-
-\subsection{Experimental Process}
-\begin{equation}
-\text{Step 1: measure }\ell,m
-\rightarrow
-\text{Step 2: set small angle }(\theta_0\le 10^\circ)
-\rightarrow
-\text{Step 3: release without push}
-\end{equation}
-\begin{equation}
-\text{Step 4: record }t_{0,i},t_{N,i}\text{ for }M\text{ trials}
-\rightarrow
-\text{Step 5: compute }T_i,\bar{T},s_T
-\rightarrow
-\text{Step 6: compute }\bar{a},\bar{c}
-\end{equation}
 \section{Experiment Results}
   Experiment results content...
 
