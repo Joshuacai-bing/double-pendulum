@@ -238,9 +238,93 @@ By solving the Algebraic Riccati Equation, we obtain the optimal gain matrix $K$
     \item During the decay measurement, try to avoid interference such as external drafts, initial push, or non-planar (conical) swinging motion.
 \end{itemize}
 
-\section{Simulation}
+\section{Simulation and Data-Driven Analysis}
 
-\section{Experiment Results}
+To investigate the underlying dynamics of the double pendulum system without relying heavily on prior theoretical formulations, a purely data-driven approach was adopted. Three sets of numerical simulations with varying system parameters (mass and length) were conducted using a high-precision symplectic integrator (Gauss-Legendre RK4). The initial conditions were set to a ``mixed-phase'' state ($\theta_1 = 0.1 \text{ rad}, \theta_2 = 0 \text{ rad}$) to simultaneously excite all possible intrinsic vibrational modes of the system. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{images/double_pendulum_comprehensive.png}
+\caption{Comprehensive visualization of the double-pendulum simulation results.}
+\label{fig:double_pendulum_comprehensive}
+\end{figure}
+
+
+
+
+
+The experimental configurations and the empirically observed dominant frequencies (extracted via Fast Fourier Transform of the time-series data) are summarized in Table \ref{tab:sim_configs}.
+
+\begin{table}[h]
+\centering
+\caption{Simulation configurations and observed dominant frequencies.}
+\label{tab:sim_configs}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Experiment Group} & $L_1$ (m) & $L_2$ (m) & $M_1$ (kg) & $M_2$ (kg) & \textbf{Observed $f_{low}$ (Hz)} & \textbf{Observed $f_{high}$ (Hz)} \\
+\midrule
+\textbf{A. Baseline} & 1.0 & 1.0 & 1.0 & 1.0 & \textbf{0.40} & \textbf{0.90} \\
+\textbf{B. Heavy Bottom} & 1.0 & 1.0 & 1.0 & 5.0 & \textbf{0.35} & \textbf{1.70} \\
+\textbf{C. Long Bottom} & 1.0 & 2.0 & 1.0 & 1.0 & \textbf{0.30} & \textbf{0.80} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data-Driven Analysis of System Dynamics}
+
+By analyzing the time-domain waveforms and frequency-domain Fourier spectra obtained from the simulations, several fundamental physical principles of the double pendulum can be deduced purely from the data.
+
+\subsubsection{Observation I: Frequency Splitting and Bimodal Coexistence}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/Experiment_A_Baseline.png}
+    \caption{Time-series and Fourier spectrum for the Baseline configuration (Experiment A).}
+    \label{fig:exp_a}
+\end{figure}
+
+As depicted in Figure \ref{fig:exp_a} for the uniform double pendulum (Experiment A), the angle-time curves for both the upper and lower pendulums do not exhibit simple sinusoidal behavior. Instead, they display a "beat-like" envelope. The corresponding Fourier spectrum clearly reveals that the system does not possess a single vibrational frequency but is split into two distinct, sharp peaks at $0.40 \text{ Hz}$ and $0.90 \text{ Hz}$. 
+
+\textbf{Empirical Deduction:} This phenomenon indicates that the double pendulum possesses two intrinsic "degrees of freedom" or fundamental vibrational modes. The complex time-domain trajectory we observe is merely the linear superposition of these two fixed-frequency modes mixing in different proportions.
+
+\subsubsection{Observation II: Frequency Polarization via Mass Alteration}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/Experiment_B_HeavyBottom.png}
+    \caption{Simulation results with a heavy lower pendulum (Experiment B).}
+    \label{fig:exp_b}
+\end{figure}
+
+When the mass of the lower pendulum ($M_2$) is drastically increased from $1.0 \text{ kg}$ to $5.0 \text{ kg}$ (Experiment B, Figure \ref{fig:exp_b}), the spectrum undergoes a dramatic shift. The lower frequency peak drops slightly to $0.35 \text{ Hz}$, while the higher frequency peak surges significantly to $1.70 \text{ Hz}$.
+
+\textbf{Empirical Deduction:} 
+The extreme increase in the higher frequency suggests that when the lower mass becomes overwhelmingly large, its inertia acts almost like a rigid base. The lighter upper pendulum is subjected to intense reactionary forces, causing it to vibrate much more rapidly against this massive "anchor." Conversely, for the low-frequency global swinging motion, the system behaves more like a single pendulum with a concentrated, lower center of mass; since frequency is predominantly governed by length, this global mode experiences only a slight decrease. Thus, an imbalance in the mass distribution exacerbates the separation (polarization) of the two vibrational modes.
+
+\subsubsection{Observation III: Global Frequency Drag via Length Extension}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/Experiment_C_LongBottom.png}
+    \caption{Simulation results with an extended lower pendulum (Experiment C).}
+    \label{fig:exp_c}
+\end{figure}
+
+In Experiment C (Figure \ref{fig:exp_c}), extending the length of the lower pendulum ($L_2$) from $1.0 \text{ m}$ to $2.0 \text{ m}$ while maintaining uniform mass results in a simultaneous downward shift of both frequency peaks. The low-frequency peak decreases to $0.30 \text{ Hz}$ and the high-frequency peak drops to $0.80 \text{ Hz}$.
+
+\textbf{Empirical Deduction:}
+Unlike the "polarization" effect caused by mass changes, increasing the length of a segment universally lowers the frequencies of all modes. This aligns with the intuitive understanding that a longer pendulum swings slower. The increased physical dimension enlarges the system's overall rotational inertia, thereby "dragging down" the pace of both the slow in-phase motion and the rapid out-of-phase motion.
+
+\subsubsection{Summary of Empirical Findings}
+
+Through purely data-driven observation, without invoking the Lagrangian formulation or eigenvalue problem solutions explicitly, the essential dynamics of the small-angle double pendulum are successfully reconstructed:
+\begin{enumerate}
+    \item \textbf{Superposition Principle:} The system's motion is governed by the coexistence of two fundamental modes (a slow mode and a fast mode).
+    \item \textbf{Mass Coupling Effect:} Disproportionate mass distribution between the segments isolates and intensifies the frequency gap between the two modes.
+    \item \textbf{Length Scaling:} The physical length of the pendulums dictates the overall time scale of the system, with longer lengths universally reducing all intrinsic frequencies.
+\end{enumerate}
+
+Furthermore, the mechanical energy plots across all three experiments remain perfectly horizontal (with negligible numerical drift on the order of $10^{-12} \text{ J}$), confirming that the data extracted is highly reliable and free from numerical dissipation artifacts.
   Experiment results content...
 
   \section{Conclusion}
