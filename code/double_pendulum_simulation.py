@@ -8,7 +8,7 @@ class DoublePendulum:
     """
     双摆系统模型封装，包含参数、导数函数、RK4 积分和能量计算。
     """
-    def __init__(self, L1, L2, M1, M2, g=9.8):
+    def __init__(self, L1, L2, M1, M2, g=9.81):
         self.L1 = L1
         self.L2 = L2
         self.M1 = M1
@@ -311,7 +311,7 @@ def animate_pendulums(results_dict, L1, L2, phase_to_animate='all'):
 if __name__ == "__main__":
     # --- 1. 参数设置 ---
     L1 = 1.0       # 上摆长 (m)
-    L2 = 1.1   # 下摆长 (m)
+    L2 = 1.0   # 下摆长 (m)
     M1 = 1.0       # 上摆质量 (kg)
     M2 = 1.0       # 下摆质量 (kg)
     g = 9.8        # 重力加速度 (m/s^2)
