@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import scipy.signal
+import os
 from integrators import INTEGRATORS
 
 class DoublePendulum:
@@ -157,25 +158,45 @@ def simulate_and_analyze(L1, L2, M1, M2, theta0, phase_type, t_max, dt, use_nonl
     theta1_vals = states[:, 0]
     theta2_vals = states[:, 2]
     
-    # 傅里叶分析
+    # 傅里叶分析 (通过加窗和零填充使曲线更平滑)
     N = len(theta1_vals)
-    fft_vals = np.fft.fft(theta1_vals)
-    fft_freq = np.fft.fftfreq(N, dt)
+    
+    # 1. 减去均值以消除零频（直流）分量干扰
+    theta1_centered = theta1_vals - np.mean(theta1_vals)
+    
+    # 2. 应用汉宁窗以减少频谱泄漏（毛刺）
+    window = np.hanning(N)
+    theta1_windowed = theta1_centered * window
+    
+    # 3. 零填充（Zero Padding），大幅提高频域曲线的显示平滑度
+    padding_factor = 10  # 填充倍数
+    N_padded = N * padding_factor
+    
+    fft_vals = np.fft.fft(theta1_windowed, n=N_padded)
+    fft_freq = np.fft.fftfreq(N_padded, dt)
     
     # 提取正频率部分
     pos_mask = fft_freq > 0
     freqs = fft_freq[pos_mask]
-    amps = np.abs(fft_vals)[pos_mask] * 2.0 / N
+    
+    # 恢复因加窗损失的振幅能量 (Hanning 窗的幅度补偿系数为 2)
+    amps = np.abs(fft_vals)[pos_mask] * 2.0 / N * 2.0
     
     # 寻找峰值
-    peaks, _ = scipy.signal.find_peaks(amps, height=np.max(amps)*0.1, distance=10)
+    peaks, _ = scipy.signal.find_peaks(amps, height=np.max(amps)*0.1, distance=10 * padding_factor)
     peak_freqs = freqs[peaks]
     peak_amps = amps[peaks]
     
     # 获取最大的两个峰值
     sorted_indices = np.argsort(peak_amps)[::-1]
     top_peaks = sorted_indices[:2]
-    dom_freqs = sorted(peak_freqs[top_peaks])
+    
+    # 提取对应的频率和振幅，然后按频率排序以保证画图匹配
+    dom_freqs_amps = [(peak_freqs[i], peak_amps[i]) for i in top_peaks]
+    dom_freqs_amps.sort(key=lambda x: x[0])  # 按频率升序排序
+    
+    dom_freqs = [x[0] for x in dom_freqs_amps]
+    dom_amps = [x[1] for x in dom_freqs_amps]
     
     print(f"\n--- 模式: {phase_type} ---")
     print(f"观测到的主导频率: {[round(f, 3) for f in dom_freqs]} Hz")
@@ -199,9 +220,9 @@ def simulate_and_analyze(L1, L2, M1, M2, theta0, phase_type, t_max, dt, use_nonl
     # 频谱图
     axs[1].plot(freqs, amps)
     if len(dom_freqs) > 0:
-        axs[1].scatter(dom_freqs, peak_amps[top_peaks], color='red', zorder=5, label='Peaks')
-        for f in dom_freqs:
-            axs[1].annotate(f'{f:.3f} Hz', xy=(f, np.interp(f, freqs, amps)), 
+        axs[1].scatter(dom_freqs, dom_amps, color='red', zorder=5, label='Peaks')
+        for f, a in dom_freqs_amps:
+            axs[1].annotate(f'{f:.3f} Hz', xy=(f, a), 
                             xytext=(5, 5), textcoords='offset points')
     axs[1].set_xlabel('Frequency (Hz)')
     axs[1].set_ylabel('Amplitude')
@@ -328,6 +349,10 @@ if __name__ == "__main__":
     modes = ['in_phase', 'anti_phase', 'mixed_phase']
     results = {}
     
+    # 创建一个文件夹用来保存生成的图表和数据
+    output_dir = "simulation_results"
+    os.makedirs(output_dir, exist_ok=True)
+    
     # --- 2. 模拟与分析循环 ---
     for mode in modes:
         t_vals, states, energies, fig = simulate_and_analyze(
@@ -335,14 +360,21 @@ if __name__ == "__main__":
         )
         results[mode] = (t_vals, states)
         
+        # 自动保存生成的图表为高清 PNG 图片
+        model_type = "nonlinear" if USE_NONLINEAR else "linear"
+        fig_filename = os.path.join(output_dir, f"{mode}_{model_type}_{INTEGRATOR_NAME}.png")
+        fig.savefig(fig_filename, dpi=300, bbox_inches='tight')
+        print(f"图表已保存至: {fig_filename}")
+        
         # 可选保存为 CSV (这里仅为注释示例，用户可自行取消注释以启用):
-        # np.savetxt(f"{mode}_data.csv", np.column_stack((t_vals, states, energies)), 
+        # csv_filename = os.path.join(output_dir, f"{mode}_{model_type}_{INTEGRATOR_NAME}_data.csv")
+        # np.savetxt(csv_filename, np.column_stack((t_vals, states, energies)), 
         #            delimiter=",", header="t,theta1,omega1,theta2,omega2,energy")
 
     # 显示所有图表窗口
-    plt.show()
+    # plt.show()
     
     # --- 3. 动画演示 ---
     # 可以将 'all' 替换为 'in_phase', 'anti_phase', 或 'mixed_phase' 以只看一种模式
-    print("\n准备播放动画，关闭图表窗口以退出程序。")
-    ani = animate_pendulums(results, L1, L2, phase_to_animate='all')
+    print("\n图表已全部保存。跳过弹出界面和动画演示。")
+    # ani = animate_pendulums(results, L1, L2, phase_to_animate='all')

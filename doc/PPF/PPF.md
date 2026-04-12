@@ -107,16 +107,16 @@
 >
 > **5. Resources for Presentation & Write-up**
 >
-> - **Document Preparation:** LaTeX (Overleaf) for typesetting the theoretical derivations and final report, .
-> - **Presentation Software:** Microsoft PowerPoint or Canva to create clear, professional slides for my final presentation, integrating the simulation animations and experimental video clips.适合非母语阅读 
->
->
+> - **Document Preparation:** LaTeX (Overleaf) for typesetting the theoretical derivations and final report.
+> - **Presentation Software:** Microsoft PowerPoint or Canva to create clear, professional slides for my final presentation, integrating the simulation animations and experimental video clips.
 
 ### Areas of research
 
 *(What areas of research will you cover?)*
 
-> <br />
+> 1. **Theoretical Physics & Mathematics:** Application of Lagrangian mechanics to set up differential equations for coupled oscillators, and utilizing linear algebra to find eigenvalues/eigenvectors for normal modes.
+> 2. **Computational Physics:** Using Python and numerical integration (ODE solvers) to simulate dynamic systems, along with exploring how AI coding tools can assist beginners in writing functional physics simulations.
+> 3. **Experimental Methodology:** Techniques for capturing and analyzing physical motion using video tracking software (Tracker), and methods for identifying damping coefficients.
 
 ***
 
@@ -124,9 +124,9 @@
 
 | What problems might you have in the data collection process? | What will you do to try to stop this from happening? What will you do if it does happen? |
 | :----------------------------------------------------------- | :--------------------------------------------------------------------------------------- |
-| <br />                                                       | <br />                                                                                   |
-| <br />                                                       | <br />                                                                                   |
-| <br />                                                       | <br />                                                                                   |
+| **High joint friction ruining the small-angle motion:** The physical double pendulum might lose energy too quickly, making it hard to observe the theoretical normal modes. | **Prevention:** I will use smooth ball bearings and lubricate them before the experiment. <br> **Action if it happens:** I will measure the damping coefficient using a single pendulum first, and incorporate this real damping into my Python simulation to match the messy experimental reality instead of ignoring it. |
+| **Video tracking software (Tracker) failing to auto-track:** The camera might blur the fast-moving pendulum bob, causing the software to lose the tracking point. | **Prevention:** I will stick bright, highly contrasting markers (like neon tape) on the pendulum bobs and ensure the room is very well-lit. <br> **Action if it happens:** I will manually click frame-by-frame for the crucial seconds of data, or re-record the video using a higher frame rate (e.g., 120fps on my phone). |
+| **AI-generated simulation code failing to run:** The AI tool might suggest incorrect Python syntax or use deprecated SciPy functions, halting my simulation progress. | **Prevention:** I will not blindly copy-paste. I will ask the AI to explain each block of code and verify the ODE solver syntax against the official SciPy documentation. <br> **Action if it happens:** I will use the AI tool's debugging feature to feed the error traceback back into the prompt, or seek help from online forums (StackOverflow) and my computer science teacher. |
 
 ***
 
