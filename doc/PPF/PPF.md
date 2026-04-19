@@ -11,7 +11,7 @@
 
 ## Proposed Project Title
 
-*(Please enter your proposed project title here)*
+*Theoretical and Simulated Dynamics of a Damped Double Pendulum under Small Angles*
 
 ***
 
@@ -19,7 +19,7 @@
 
 ### Title or working title of project
 
-*(in the form of a question, commission or design brief)*
+*Theoretical and Simulated Dynamics of a Damped Double Pendulum under Small Angles*
 
 > <br />
 

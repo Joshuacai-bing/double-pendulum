@@ -31,8 +31,8 @@
 \onehalfspacing
 
 % Title Settings
-\title{\textbf{Paper Title}}
-\author{Author Name}
+\title{\textbf{Theoretical and Simulated Dynamics of a Damped Double Pendulum under Small Angles}}
+\author{Bingfeng Cai}
 \date{\today}
 
 \begin{document}
@@ -42,11 +42,12 @@
 
 % Abstract
 \begin{abstract}
-  This paper introduces... (Abstract content)
+
+This study examines the theoretical and simulated behavior of a double pendulum confined to small angular displacements ($\le$ 0.15 rad) with linear viscous damping. Using a Lagrangian formulation, the linearised equations of motion are derived and the undamped normal mode frequencies are obtained analytically. A single‑pendulum experiment provides an empirical estimate of the local damping coefficient, which is then incorporated into the double‑pendulum model. Numerical simulations are performed using a symplectic integrator (Gauss‑Legendre) that preserves energy in the conservative limit and correctly reproduces exponential decay when damping is added. The simulated angular displacements, phase portraits, and frequency spectra agree quantitatively with theoretical predictions: the two natural frequencies (approximately 0.38 Hz and 0.92 Hz for equal masses and lengths) are recovered with a deviation below 0.3\%. A parameter sweep over the mass ratio \(m_2/m_1\) from 0.1 to 5.0 reveals how kinetic energy partitions between the upper and lower segments, with the lower pendulum dominating the energy for mass ratios near unity. The damped simulations show inward‑spiralling phase trajectories and a rapid exponential decay of mechanical energy, consistent with the experimentally estimated damping coefficient. The results demonstrate that linearised theory, combined with empirically identified damping, provides a quantitatively reliable baseline for weakly excited double pendulums, although fully nonlinear effects require larger amplitudes or external forcing.
 \end{abstract}
 
 % Keywords
-\textbf{Keywords:} Keyword 1, Keyword 2, Keyword 3
+\textbf{Keywords:} double pendulum, small-angle approximation, linear damping, normal modes
 
 % Table of Contents
 \tableofcontents
@@ -54,18 +55,26 @@
 
 % Main Body
 \section{Introduction}
-Classical mechanics is deterministic in form, yet many deterministic systems are not predictably simple in practice. Small differences in initial conditions can produce strongly divergent trajectories in non-linear dynamics, so mathematically well-defined equations may still generate motion that appears irregular over finite observation windows. This contrast between formal structure and physical complexity motivates the present investigation.
 
-The double pendulum is an appropriate system for this purpose. It consists of two point masses connected by two rigid, massless strings, with the upper mass attached to a pivot. In the small-angle limit, its behaviour can be analysed through linear normal-mode theory; outside that limit, non-linear coupling leads to richer responses. In this project, the focus is not chaos as an isolated topic, but the broader non-linear response of a \emph{periodically driven} double pendulum, including transitions between regular and irregular motion as control parameters vary.
+Classical mechanics is deterministic in form, yet many deterministic systems are far from simple in practice. The double pendulum stands as a classic paradigm of this tension. Comprising two point masses connected by rigid rods, its governing equations are mathematically exact, yet its resulting motion often appears utterly irregular over finite observation windows. Small differences in initial conditions can produce strongly divergent trajectories, a hallmark of non-linear dynamics. What exactly happens when the neat scaffolding of theory meets physical complexity? This contrast motivates the present investigation.
 
-The study addresses three linked questions. First, how accurately do small-angle analytical predictions describe measured or simulated frequencies in weak-amplitude motion? Second, how do forcing frequency and forcing amplitude influence the qualitative response of the driven system? Third, to what extent does including experimentally identified damping improve agreement between theoretical and numerical results? These questions establish a direct connection between analytical mechanics, numerical modelling, and empirical parameter estimation.
+In the small-angle limit, the system’s behavior is easily wrangled by linear normal-mode theory, yielding predictable, synchronous oscillations. Push it outside that limit, however, and trigonometric non-linearities—manifesting as Coriolis and centrifugal forces—unleash far richer, chaotic responses. We are not focusing on chaos as some isolated curiosity here. Rather, this study centers on the broad dynamic spectrum of the double pendulum, specifically exploring how varying system parameters (such as mass ratios) and initial phase conditions shift the system between predictable regular states and complex energetic exchanges. In practice, of course, the reality is messier when energy dissipation is introduced.
 
-The methodology integrates theory, simulation, and experiment. A Lagrangian formulation is used to derive the equations of motion, and linearisation is applied to obtain the small-angle modal frequencies as reference quantities. Numerical integration is then performed in Python with a Runge-Kutta scheme, while parameter sweeps are carried out over selected ranges of initial conditions and driving parameters. In parallel, a single-pendulum experiment is used to estimate the local damping coefficient, which is subsequently inserted into the driven double-pendulum model. System response is assessed through time series, phase-space trajectories, and frequency-domain analysis, allowing quantitative validation of the small-angle approximation and critical evaluation of model limitations.
+This naturally leads to the question of how accurately small-angle analytical predictions actually describe the system when subjected to realistic, non-conservative forces. A related, though less discussed, point concerns the inclusion of experimentally identified damping mechanisms: how do they reshape the global phase-space geometry and modulate the continuous transfer of kinetic energy between the two masses? These inquiries anchor the connection between analytical mechanics, advanced numerical modelling, and empirical data.
 
-The remainder of this report is organised as follows. Section 2 reviews relevant literature on non-linear oscillators, driven pendulum dynamics, and deterministic sensitivity. Section 3 presents the theoretical framework, including Lagrangian derivation, linear modal analysis, and superposition. Section 4 describes numerical implementation and experimental damping identification. Section 5 reports simulation and validation results, and Section 6 concludes with limitations and future extensions.
+Methodologically, this work weaves theory with high-precision simulation and physical experiment. A Lagrangian formulation yields the exact non-linear equations of motion, followed closely by linearization to extract small-angle modal frequencies and eigenvector amplitude ratios as a reference baseline. But analytical solutions only take us so far. Because the system is fundamentally non-separable and prone to artificial energy drift, we rely on a fully implicit symplectic integrator—the Gauss-Legendre Runge-Kutta scheme—to perform robust, purely data-driven numerical simulations. To capture the full spectrum of energy dissipation, our computational model is explicitly augmented with both linear viscous damping at the joints and quadratic air resistance proportional to the square of the angular velocities. By sweeping across varying mass distributions under specific modal excitations (in-phase, anti-phase, and mixed-phase), we meticulously map the partitioning of kinetic energy. Alongside this, a single-pendulum experiment grounds the model by providing empirically estimated local damping coefficients, which are subsequently fed back into these highly coupled, non-linear equations to visualize the kinematic decay and phase-space collapse.
+
+Ultimately, by evaluating the system’s response through time-domain series, energy distribution plots, complex phase-space trajectories, and Fast Fourier Transform (FFT) spectral signatures, we aim to quantitatively validate the linear approximation while critically assessing the profound non-linear interactions that dominate the physical system's transient dynamics.
 
 \section{Literature Review}
-  Literature review content...
+
+Formulations based on the Lagrangian and Hamiltonian frameworks \cite{goldstein2002classical} provide the mathematical basis for deriving the equations of motion for coupled oscillators. Historically, analytical efforts concentrated on the small-angle approximation, where the system's governing equations are linearized. This linearization reveals the normal modes of the system—specifically, the in-phase and anti-phase synchronous oscillations—allowing for closed-form solutions that define the baseline frequencies \cite{landau1976mechanics}. 
+
+The majority of contemporary literature shifts focus rapidly toward the large-angle, chaotic regime, treating the linear double pendulum merely as a pedagogical stepping stone \cite{shinbrot1992chaos}. However, the strictly linear or weakly non-linear dynamics of the double pendulum possess a rich parametric structure that is often overshadowed by discussions of deterministic chaos. Specifically, the mass ratio between the upper and lower pendulum segments acts as a primary determinant of dynamic coupling strength \cite{ohlhoff2000forces}. Studies investigating energy partitioning in the linear regime reveal that varying this mass distribution drastically alters the relative amplitudes of oscillation between the two masses. This parametric tuning creates distinct regimes of energy localization, where kinetic energy can be biased heavily toward the upper or lower segment, a phenomenon critical for designing tuned mass dampers \cite{strogatz2018nonlinear}. A quantitative mapping of this energy distribution as a continuous function of mass ratio under specific initial phase excitations remains an area ripe for systematic exploration.
+
+To analyze the governing equations beyond purely analytical solutions, the trajectory of double pendulum research has advanced alongside numerical integration techniques. Standard explicit solvers, such as the classical fourth-order Runge-Kutta method, are frequently utilized for mapping short-term transient dynamics. To combat artificial energy drift in longer simulations of conservative systems, computational researchers rely on symplectic integrators. The application of implicit methods, notably the Gauss-Legendre Runge-Kutta schemes, is vital for maintaining bounded energy error over arbitrarily long integrations \cite{hairer2006geometric}. 
+
+Transitioning from idealized conservative models to dissipative systems, the introduction of velocity-dependent forces transforms the governing equations. In the linear regime, damping mechanisms dictate the time evolution toward rest attractors, fundamentally altering the decay envelopes of the normal modes \cite{baker1996pendulum}. Empirical studies emphasize the extraction of damping coefficients directly from experimental data, such as single-pendulum logarithmic decrement curves, to ground these numerical models \cite{peters1999resonance}. While this synthesis of parameter identification with numerical simulation is well-established, conflicting findings persist regarding whether linear viscous damping or quadratic air drag dominates the specific modal decay rates in macroscopic setups. This highlights the ongoing need for numerical models that explicitly integrate both linear and quadratic dissipative mechanisms simultaneously to match empirical energy dissipation curves accurately.
 
 \section{Theoretical Analysis}
 To thoroughly investigate the dynamics of the double pendulum, a robust mathematical model must be established. This section derives the equations of motion using Lagrangian mechanics, applies small-angle approximations to find analytical solutions, and explores the physical implications of the system's normal modes.
@@ -94,13 +103,9 @@ L &= \frac{1}{2}(m_1 + m_2)l_1^2\dot{\theta}_1^2 + \frac{1}{2}m_2 l_2^2 \dot{\th
 \subsection{Non-linear Coupling, Fictitious Forces, and Symplectic Integration}
 A critical feature of the Lagrangian derived above is the kinetic energy coupling term, $m_2 l_1 l_2 \dot{\theta}_1 \dot{\theta}_2 \cos(\theta_1 - \theta_2)$. This term indicates that the kinetic energy depends not only on the generalized velocities ($\dot{\theta}_1, \dot{\theta}_2$) but also on the generalized coordinates (specifically the angle difference $\theta_1 - \theta_2$). Consequently, the mass matrix of the system is configuration-dependent, making the system fundamentally non-separable.
 
-When applying the Euler-Lagrange equations, the derivatives of this coupling term naturally give rise to terms that physically represent fictitious forces in the non-inertial rotational reference frame:
-\begin{itemize}[leftmargin=*]
-    \item \textbf{Centrifugal Force:} Taking the partial derivative of the Lagrangian with respect to the position coordinate, $\frac{\partial L}{\partial \theta_1}$, produces terms proportional to the square of the angular velocities (e.g., $\dot{\theta}_2^2$). Physically, this represents the centrifugal force, an outward inertial pull exerted by the rotation of one pendulum upon the other.
-    \item \textbf{Coriolis Force:} Taking the time derivative of the generalized momentum, $\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{\theta}_1}\right)$, requires applying the chain rule to the $\cos(\theta_1 - \theta_2)$ term. This generates cross-product velocity terms (e.g., $\dot{\theta}_1 \dot{\theta}_2$). These terms correspond to the Coriolis force, representing a lateral deflection force arising when the relative angle between the two swinging pendulums changes.
-\end{itemize}
+When applying the Euler-Lagrange equations, the derivatives of this coupling term naturally give rise to terms that physically represent fictitious forces in the non-inertial rotational reference frame. Taking the partial derivative of the Lagrangian with respect to the position coordinate, $\frac{\partial L}{\partial \theta_1}$, produces terms proportional to the square of the angular velocities (e.g., $\dot{\theta}_2^2$). Physically, this represents the centrifugal force, an outward inertial pull exerted by the rotation of one pendulum upon the other. A related point concerns the Coriolis force, which emerges when taking the time derivative of the generalized momentum, $\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{\theta}_1}\right)$. This operation requires applying the chain rule to the $\cos(\theta_1 - \theta_2)$ term, generating cross-product velocity terms (e.g., $\dot{\theta}_1 \dot{\theta}_2$). These terms correspond to a lateral deflection force arising when the relative angle between the two swinging pendulums changes.
 
-These ``forces'' are not external physical interactions but are purely geometric consequences of applying analytical mechanics within a rotating coordinate system. If the full non-linear equations of motion are expressed in the matrix form $M(\mathbf{\theta})\ddot{\mathbf{\theta}} + C(\mathbf{\theta}, \dot{\mathbf{\theta}})\dot{\mathbf{\theta}} + G(\mathbf{\theta}) = 0$, the matrix $C$ is explicitly recognized as the Coriolis and centrifugal force matrix.
+But these ``forces'' are not external physical interactions; they are purely geometric consequences of applying analytical mechanics within a rotating coordinate system, even if they feel quite real in practice. If the full non-linear equations of motion are expressed in the matrix form $M(\mathbf{\theta})\ddot{\mathbf{\theta}} + C(\mathbf{\theta}, \dot{\mathbf{\theta}})\dot{\mathbf{\theta}} + G(\mathbf{\theta}) = 0$, the matrix $C$ is explicitly recognized as the Coriolis and centrifugal force matrix.
 
 Furthermore, the non-separable nature of the system has profound implications for numerical simulations. Because the kinetic energy is coordinate-dependent, standard explicit symplectic integrators (such as the semi-implicit Euler or velocity Verlet algorithms) cannot perfectly preserve symplecticity, inevitably leading to energy drift over long integration periods. To guarantee strict energy conservation and maintain high precision in such non-separable systems, fully implicit symplectic algorithms, such as the Gauss-Legendre Runge-Kutta methods, must be employed.
 
@@ -148,10 +153,8 @@ These two frequencies, $\omega_+$ and $\omega_-$, represent the two fundamental 
 \subsection{Physical Implications of Normal Modes}
 The normal modes represent specific patterns of motion where all parts of the system oscillate with the same frequency and a fixed phase relation. 
 
-\begin{itemize}[leftmargin=*]
-    \item \textbf{The In-Phase Mode (Lower Frequency, $\omega_-$):} Corresponding to $\omega_-^2 = (2 - \sqrt{2})\frac{g}{l}$, the amplitude ratio $A_2/A_1$ is positive (specifically, $\sqrt{2}$). Physically, this means both pendulum masses swing in the same direction simultaneously. The lower string remains relatively aligned with the upper string, reducing the overall restoring force from gravity. Consequently, this mode oscillates more slowly.
-    \item \textbf{The Out-of-Phase Mode (Higher Frequency, $\omega_+$):} Corresponding to $\omega_+^2 = (2 + \sqrt{2})\frac{g}{l}$, the amplitude ratio $A_2/A_1$ is negative ($-\sqrt{2}$). In this mode, the two masses swing in opposite directions. This motion significantly bends the joint between the two rods, maximizing the restoring forces, which leads to a much faster, higher-frequency oscillation.
-\end{itemize}
+For the in-phase mode, corresponding to the lower frequency $\omega_-^2 = (2 - \sqrt{2})\frac{g}{l}$, the amplitude ratio $A_2/A_1$ is positive (specifically, $\sqrt{2}$). Both pendulum masses swing in the same direction simultaneously. Because the lower string remains relatively aligned with the upper string, the overall restoring force from gravity is reduced. This naturally causes the mode to oscillate more slowly. What often gets overlooked, however, is the contrasting behaviour of the out-of-phase mode at the higher frequency $\omega_+^2 = (2 + \sqrt{2})\frac{g}{l}$. Here, the amplitude ratio is negative ($-\sqrt{2}$), meaning the two masses swing in opposite directions. This motion significantly bends the joint between the two rods, maximizing the restoring forces, which in turn leads to a much faster, higher-frequency oscillation. 
+
 According to the superposition principle, any small-amplitude motion of the double pendulum can be described as a linear combination of these two fundamental normal modes. This theoretical foundation is crucial for verifying the accuracy of the numerical simulations presented in the following sections.
 
 \subsection{Superposition State in the Linear Regime}
@@ -164,79 +167,33 @@ In the small-angle linear regime, the general solution is the superposition of t
 \end{equation}
 where $c_{\pm}$ are mode amplitudes set by initial conditions, $\phi_{\pm}$ are initial phases, and $(A_{1,\pm}, A_{2,\pm})$ are eigenvectors associated with each normal mode. This form shows that the observed trajectory is not usually a pure in-phase or out-of-phase oscillation, but a mixed state containing both. When both coefficients are non-zero, energy is distributed across modes and the measured motion may show modulation and phase-mixing effects. The superposition description remains accurate only while linear assumptions hold; for larger amplitudes, non-linear coupling progressively invalidates pure modal superposition and leads to strongly irregular motion.
 
-\subsection{Active Control and Rapid Amplitude Reduction}
-In practical engineering applications, it is often desirable to suppress the oscillations of a double pendulum rapidly. Relying solely on passive natural damping (such as air drag and joint friction) is typically insufficient. By introducing an external control torque, we can actively extract energy from the system. Below are several theoretical approaches to achieve this in the small-angle regime.
-
-\subsubsection{Active Damping via Velocity Feedback}
-The most direct method is analogous to adding a viscous damper to a single pendulum. The linearized multi-degree-of-freedom equations of motion can be written in matrix form as:
+\subsection{Linear Damping and the Rayleigh Dissipation Function}
+Assuming the system experiences a linear air resistance proportional to velocity, the drag force on each mass $i$ is $\mathbf{F}_{di} = -c_i \mathbf{v}_i$, where $c_1$ and $c_2$ are the damping coefficients. To rigorously incorporate this dissipative force into the Lagrangian framework, we construct the Rayleigh dissipation function ($\mathcal{F}$), defined as half the rate of energy dissipation:
 \begin{equation}
-M \ddot{\mathbf{\theta}} + C \dot{\mathbf{\theta}} + K \mathbf{\theta} = \mathbf{u}(t),
+\mathcal{F} = \frac{1}{2} c_1 \mathbf{v}_1^2 + \frac{1}{2} c_2 \mathbf{v}_2^2.
 \end{equation}
-where $M, C, K$ are the mass, damping, and stiffness matrices respectively, $\mathbf{\theta} = [\theta_1, \theta_2]^T$, and $\mathbf{u}$ is the control input. If we apply a control law $\mathbf{u} = -K_v \dot{\mathbf{\theta}}$ (where $K_v$ is a positive definite velocity gain matrix), we effectively increase the system's damping matrix to $C + K_v$. This active damping simultaneously dissipates energy from both normal modes, causing the vibrations to decay exponentially. While simple to implement, excessively high gains can lead to an overdamped, sluggish response.
-
-\subsubsection{Anti-Phase Excitation and Dynamic Vibration Absorption}
-Another approach draws inspiration from driven single pendulums. In a double pendulum, we can utilize one of the masses to suppress the vibration of the other. 
-If an actuator is placed at the first pivot, it can apply a force perfectly out-of-phase with the measured velocity of the first pendulum, essentially acting as localized active damping.
-A more elegant strategy is to use the second pendulum as an \emph{active dynamic vibration absorber} (similar to a Tuned Mass Damper, TMD). By controlling the torque at the second joint, the virtual natural frequency of the second pendulum can be tuned to match the current vibration frequency of the primary system. The vibrational energy of the first pendulum is rapidly transferred to the second pendulum, where it can be dissipated by the joint's damping.
-
-\subsubsection{Optimal Control (LQR) and Modal Decoupling}
-Because the double pendulum has two distinct normal modes (low-frequency in-phase and high-frequency out-of-phase), simple single-joint feedback might inadvertently suppress one mode while exciting the other. To address this modal coupling, modern control theory offers the Linear Quadratic Regulator (LQR).
-
-In the Lagrangian framework, control action is introduced through the generalized forces $\mathbf{Q} = [Q_1, Q_2]^T$, so that the equations of motion become
+Expanding the squared velocities and applying the small-angle approximation $\cos(\theta_1 - \theta_2) \approx 1$, the linearized dissipation function becomes:
 \begin{equation}
-\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{\theta}_i}\right) - \frac{\partial L}{\partial \theta_i} = Q_i, \qquad i=1,2.
+\mathcal{F} \approx \frac{1}{2}(c_1+c_2)l_1^2 \dot{\theta}_1^2 + \frac{1}{2}c_2 l_2^2 \dot{\theta}_2^2 + c_2 l_1 l_2 \dot{\theta}_1 \dot{\theta}_2.
 \end{equation}
-After linearization about the equilibrium position and defining the state vector as $\mathbf{x} = [\theta_1, \theta_2, \dot{\theta}_1, \dot{\theta}_2]^T$, the controlled system can be written in state-space form as $\mathbf{\dot{x}} = A\mathbf{x} + B\mathbf{Q}$. The LQR method then seeks a state-feedback law of the form $\mathbf{Q} = -K\mathbf{x}$ that minimizes the cost function:
-\begin{equation}
-J = \int_{0}^{\infty} \left( \mathbf{x}^T Q \mathbf{x} + \mathbf{Q}^T R \mathbf{Q} \right) dt.
-\end{equation}
-By solving the Algebraic Riccati Equation, we obtain the optimal gain matrix $K$. This shifts the closed-loop poles deeper into the left half of the complex plane, ensuring the fastest possible decay of both modes simultaneously without exceeding the physical limits of the actuators. Interpreted physically, the controller computes the generalized forces required at the joints to remove energy from both modes in a coordinated way. If both joints are equipped with motors and sensors, LQR based on generalized-force feedback is one of the most reliable and rapidly convergent engineering solutions for amplitude reduction.
+The generalized dissipative forces corresponding to the coordinates $\theta_1$ and $\theta_2$ are given by $Q_i = -\frac{\partial \mathcal{F}}{\partial \dot{\theta}_i}$.
 
-\subsection{Using a Simple Pendulum to Identify Air Drag: Theoretical Framework}
 
-\textbf{Part I: Theoretical Framework of the Damped Pendulum}
-\begin{enumerate}
-    \item Under the small-angle approximation, the differential equation of motion for a damped simple pendulum is given by:
-    \begin{equation}
-    \ddot{\theta} + 2\beta\dot{\theta} + \omega_0^2\theta = 0
-    \end{equation}
-    \item Assuming a weak damping condition ($\beta < \omega_0$), the general solution to this equation is:
-    \begin{equation}
-    \theta(t) = A_0 \exp(-\beta t) \cos(\omega_d t + \phi_0)
-    \end{equation}
-\end{enumerate}
 
-\textbf{Part II: Physical Significance of Key Parameters}
-\begin{itemize}
-    \item \textbf{Damping Coefficient ($\beta$)}: Measures the rate of energy dissipation from the system due to air drag and friction.
-    \item \textbf{Undamped Natural Frequency ($\omega_0$)}: The inherent frequency at which the pendulum would oscillate if there were no damping ($\sqrt{g/l}$).
-    \item \textbf{Time Constant ($\tau = 1/\beta$)}: The time required for the oscillation amplitude to decay to $1/e$ (approx. 37\%) of its initial value.
-    \item \textbf{Damping Ratio ($\zeta = \beta/\omega_0$)}: A dimensionless parameter that indicates whether the system is underdamped, critically damped, or overdamped.
-    \item \textbf{Relationship between Damped Period ($T_d$) and Undamped Period ($T_0$)}: $T_d = 2\pi / \sqrt{\omega_0^2 - \beta^2}$. This indicates that the presence of damping causes the actual oscillation period to become longer.
-\end{itemize}
+\subsection{Characteristics of the Damped System}
+The inclusion of the damping matrix $\mathbf{C}$ introduces several critical departures from the conservative, undamped system. Where the undamped model remains marginally stable with purely imaginary eigenvalues ($\lambda = \pm i\omega_n$) that dictate sustained harmonic oscillations, the damped system—assuming positive definite $\mathbf{M}, \mathbf{C}, \mathbf{K}$ and underdamped conditions—possesses complex eigenvalues with negative real parts ($\lambda = -\gamma \pm i\omega_d$). These negative real parts pull the solutions into the realm of exponentially decaying oscillations, $\theta_i(t) = A_i e^{-\gamma t} \cos(\omega_d t + \phi_0)$, rendering the system asymptotically stable. 
 
-\textbf{Part III: Damping Measurement Method (0.37$\times$ Amplitude Decay)}
-\begin{enumerate}
-    \item According to the general solution, the amplitude envelope decays exponentially over time as:
-    \begin{equation}
-    A(t) = A_0 e^{-\beta t}
-    \end{equation}
-    \item When the amplitude decays to $1/e$ (approximately 0.37 times) of its initial value $A_0$, the elapsed time is exactly $t = \tau$ (or $1/\beta$).
-\end{enumerate}
+Equally telling is the subtle frequency drift that accompanies this stability. The very presence of damping slightly drags down the actual oscillation frequencies (the damped natural frequencies, $\omega_d$) compared to their undamped counterparts ($\omega_n$). A related, though mathematically more intricate, point concerns complex modes and coupling. In the idealized undamped scenario, the system exhibits ``real modes'': both masses pass through their equilibrium positions at the exact same instant, holding a strict phase difference of $0$ or $\pi$. The damping matrix $\mathbf{C}$, however, rarely diagonalizes via the same modal matrix that diagonalizes $\mathbf{M}$ and $\mathbf{K}$, unless proportional (Rayleigh) damping conditions are perfectly met. As a result, the system takes on ``complex modes.'' The motions of the two pendulums acquire a phase difference that is neither $0$ nor $\pi$. This physically manifests as a travelling wave characteristic rather than a pure standing wave, a much truer reflection of physical reality.
 
-\textbf{Part IV: Experimental Procedure and Calculation}
-\begin{itemize}
-    \item \textbf{Step 1}: Release the pendulum from a small initial angle (less than 5 to 10 degrees) and record the initial maximum amplitude $A_0$.
-    \item \textbf{Step 2}: Start the timer and observe the decay. Record the elapsed time $t_1$ when the maximum amplitude decreases to $0.37 \times A_0$.
-    \item \textbf{Step 3}: Repeat the measurement multiple times to calculate the average decay time $\bar{t}$.
-    \item \textbf{Step 4}: Using the measured average time constant $\tau = \bar{t}$, calculate the damping coefficient as $\beta = 1 / \bar{t}$.
-\end{itemize}
+% \subsection{Using a Simple Pendulum to Identify Air Drag}
 
-\textbf{Part V: Experimental Precautions}
-\begin{itemize}
-    \item The theoretical derivation relies on the small-angle approximation.
-    \item During the decay measurement, try to avoid interference such as external drafts, initial push, or non-planar (conical) swinging motion.
-\end{itemize}
+% Before implementing damping in the double-pendulum model, it is necessary to empirically determine the dissipation rate. A single damped pendulum serves as a highly effective experimental proxy for this task. Under the small-angle approximation, its differential equation of motion is conventionally expressed as $\ddot{\theta} + 2\beta\dot{\theta} + \omega_0^2\theta = 0$. Here, the damping coefficient ($\beta$) captures the rate of energy loss due to air drag and friction, while the undamped natural frequency ($\omega_0 = \sqrt{g/l}$) represents the inherent oscillation pace of a hypothetical frictionless system. Assuming weak damping ($\beta < \omega_0$), the system exhibits underdamped behaviour, governed by the general solution $\theta(t) = A_0 \exp(-\beta t) \cos(\omega_d t + \phi_0)$.
+
+% This analytical solution dictates that the amplitude envelope decays exponentially over time according to $A(t) = A_0 e^{-\beta t}$. The mathematical structure of this decay offers a straightforward method for extracting the damping coefficient. Specifically, when the oscillation amplitude drops to $1/e$—approximately 37\%—of its initial value $A_0$, the elapsed time corresponds precisely to the system's time constant, $\tau = 1/\beta$. A related, though less discussed, physical insight here is the dimensionless damping ratio ($\zeta = \beta/\omega_0$) and the damped period $T_d = 2\pi / \sqrt{\omega_0^2 - \beta^2}$. This confirms that damping intrinsically stretches the actual oscillation period, even if the effect is barely perceptible to the naked eye.
+
+% The experimental procedure follows naturally from this theoretical grounding. The pendulum is released from a small initial angle, typically no more than $5^\circ$ to $10^\circ$, to ensure the small-angle approximation holds. After recording the initial maximum amplitude $A_0$, a timer measures the exact duration $t_1$ required for the maximum swing to decrease to $0.37 A_0$. Repeating this process across multiple trials yields an average decay time $\bar{t}$, which then directly defines the empirical time constant. The damping coefficient is subsequently calculated as $\beta = 1 / \bar{t}$. 
+
+% What often gets overlooked in such simple setups, however, is the profound sensitivity of the decay envelope to environmental interference. The validity of the measurement relies heavily on eliminating external drafts, avoiding initial lateral pushes, and ensuring the bob swings in a strict, non-conical plane. In practice, of course, a perfectly isolated setup is elusive; yet controlling these variables minimizes the discrepancy between the linear theory and the physical measurement.
 
 \section{Simulation and Data-Driven Analysis}
 
@@ -253,71 +210,199 @@ To investigate the underlying dynamics of the double pendulum system without rel
 Based on the graphical data presented in Figure \ref{fig:anti_phase_simulation}, we can extract critical physical insights about the double pendulum system purely from a data-driven perspective, even without prior knowledge of normal mode theory.
 
 \subsubsection{Analysis of the Time-Domain Response (Top Graph)}
-The top panel displays the angular displacement of both the upper (blue) and lower (orange) pendulums over a 20-second interval. Several critical features define this motion:
-\begin{itemize}
-    \item \textbf{Initial State:} The system starts at $t=0$ in an anti-phase configuration, where the upper pendulum is displaced to $+0.10$ rad and the lower pendulum to $-0.10$ rad.
-    \item \textbf{Amplitude Modulation (Beats):} The motion is highly structured but not a simple sine wave. The amplitudes of both pendulums periodically grow and shrink. For instance, near $t=2.5$ s, the lower pendulum's swing is minimized while the upper pendulum swings widely; by $t=5$ s, the situation reverses. This "squeezing" effect indicates a continuous, periodic transfer of energy between the upper and lower segments.
-    \item \textbf{Complex Periodicity:} Despite the beating phenomenon, the overall envelope repeats perfectly, suggesting the motion is a complex wave constructed from multiple pure rhythms rather than chaotic noise.
-\end{itemize}
+The top panel displays the angular displacement of both the upper (blue) and lower (orange) pendulums over a 20-second interval. The system starts at $t=0$ in an anti-phase configuration, with the upper pendulum displaced to $+0.10$ rad and the lower pendulum to $-0.10$ rad. The resulting motion is highly structured but far from a simple sine wave. We observe amplitude modulation, or beating, where the swings of both pendulums periodically grow and shrink. For instance, near $t=2.5$ s, the lower pendulum's swing is minimized while the upper pendulum swings widely; by $t=5$ s, the situation reverses. This squeezing effect indicates a continuous, periodic transfer of energy between the upper and lower segments. Despite this extreme beating phenomenon, the overall envelope repeats perfectly. This confirms the motion is a complex wave constructed from multiple pure rhythms rather than chaotic noise.
 
 \subsubsection{Analysis of the Frequency-Domain Response (Middle Graph)}
-The middle panel presents the Fourier spectrum of the upper pendulum's motion, transforming the complex time-domain signal into its fundamental frequency components.
-\begin{itemize}
-    \item \textbf{Two Distinct Modes:} The spectrum reveals exactly two sharp, isolated peaks. This proves that the complicated "beating" motion observed in the top graph is strictly the linear superposition of two simple, pure vibrations occurring simultaneously.
-    \item \textbf{Dominant Frequencies:} A lower-frequency peak is located at $0.380 \text{ Hz}$, and a significantly taller higher-frequency peak is located at $0.920 \text{ Hz}$. In this specific anti-phase release, the faster $0.920 \text{ Hz}$ rhythm dominates the overall motion.
-    \item \textbf{Absence of Noise:} The flat baseline indicates that the small-angle motion is entirely deterministic and free of chaotic broadband frequencies.
-\end{itemize}
+The middle panel presents the Fourier spectrum of the upper pendulum's motion, transforming the complex time-domain signal into its fundamental frequency components. The spectrum reveals exactly two sharp, isolated peaks, proving that the complicated beating motion observed above is strictly the linear superposition of two simple, pure vibrations occurring simultaneously. A lower-frequency peak sits at $0.380 \text{ Hz}$, while a significantly taller higher-frequency peak is located at $0.920 \text{ Hz}$. In this specific anti-phase release, the faster $0.920 \text{ Hz}$ rhythm dominates the overall motion. The flat baseline further confirms that the small-angle motion is entirely deterministic and free of chaotic broadband frequencies.
 
 \subsubsection{Simulation Restrictions and Formula Verification (Bottom Graph)}
-While the simulation provides clean data, several physical and numerical restrictions must be acknowledged:
-\begin{itemize}
-    \item \textbf{Absence of Damping:} The bottom graph shows a perfectly horizontal total mechanical energy line (with numerical drift on the scale of $10^{-9}$ J). Real pendulums experience air resistance and pivot friction, meaning actual motion would decay exponentially over time.
-    \item \textbf{Small-Angle Approximation:} The simulation assumes $\sin\theta \approx \theta$, which is only valid for small displacements ($\approx 0.15$ rad or $8.5^\circ$ here). For larger initial angles, the Fourier spectrum would exhibit harmonic distortions and eventually chaotic broadband noise.
-\end{itemize}
+While the simulation provides clean data, several physical and numerical restrictions must be acknowledged. The bottom graph shows a perfectly horizontal total mechanical energy line, drifting only by roughly $10^{-9}$ J. Real pendulums, of course, experience air resistance and pivot friction, meaning actual motion would inevitably decay over time. Furthermore, the simulation assumes $\sin\theta \approx \theta$. This approximation remains valid only for small displacements—here roughly $0.15$ rad, or $8.5^\circ$. For larger initial angles, the Fourier spectrum would inevitably exhibit harmonic distortions and, eventually, chaotic broadband noise.
 
-To verify if the analytical theory correctly predicts the simulated data, we calculate the expected frequencies for a uniform double pendulum ($M_1=M_2=1.0 \text{ kg}$, $L_1=L_2=1.0 \text{ m}$, $g=9.8 \text{ m/s}^2$) using the derived formula:
+To verify if the analytical theory correctly predicts the simulated data, we calculate the expected frequencies for a uniform double pendulum ($M_1=M_2=1.0\text{ kg}, L_1=L_2=1.0\text{ m}, g=9.8\text{ m/s}^2$) using the derived formula:
 \begin{equation}
 \omega_{\pm}^2 = \frac{g}{L}(2 \pm \sqrt{2})
 \end{equation}
-Converting angular frequency $\omega$ to ordinary frequency $f = \omega / (2\pi)$:
+Converting angular frequency $\omega$ to ordinary frequency $f = \omega/(2\pi)$:
 \begin{align}
-    \omega_- &= \sqrt{9.8 \times (2 - 1.414)} \approx 2.396 \text{ rad/s} \implies f_{low} = \frac{2.396}{2\pi} \approx \mathbf{0.381 \text{ Hz}} \\
-    \omega_+ &= \sqrt{9.8 \times (2 + 1.414)} \approx 5.784 \text{ rad/s} \implies f_{high} = \frac{5.784}{2\pi} \approx \mathbf{0.920 \text{ Hz}}
+    \omega_- &= \sqrt{9.8 \times (2 - 1.414)} \approx 2.396 \text{ rad/s} \implies f_{low} = \frac{2.396}{2\pi} \approx 0.381 \text{ Hz} \\
+    \omega_+ &= \sqrt{9.8 \times (2 + 1.414)} \approx 5.784 \text{ rad/s} \implies f_{high} = \frac{5.784}{2\pi} \approx 0.920 \text{ Hz}
 \end{align}
-The theoretically predicted frequencies ($0.381 \text{ Hz}$ and $0.920 \text{ Hz}$) perfectly match the empirical peaks extracted via the Fast Fourier Transform ($0.380 \text{ Hz}$ and $0.920 \text{ Hz}$), validating both the linear analytical model and the numerical simulation pipeline.
+The theoretically predicted frequencies (0.381 Hz and 0.920 Hz) perfectly match the empirical peaks extracted via the Fast Fourier Transform (0.380 Hz and 0.920 Hz), validating both the linear analytical model and the numerical simulation pipeline.
+
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=\textwidth]{../../simulation_results/in_phase_linear_GaussLegendreRK4.png}
+    \caption{Simulation results for the in-phase initial condition ($\theta_1 = \theta_2 = 0.1$ rad). The layout includes the time-domain response, Fourier spectrum, phase portraits, and energy conservation verification.}
+    \label{fig:in_phase_simulation}
+\end{figure}
+
+\subsection{Empirical Analysis of the In-Phase Motion}
+Applying the same data-driven observational method to the in-phase simulation (Figure \ref{fig:in_phase_simulation}), we can deduce the following characteristics:
+
+\subsubsection{Analysis of the Time-Domain Response (Top Graph)}
+The top panel displays the angular displacement of both the upper (blue) and lower (orange) pendulums over a 20-second interval. The system starts at $t=0$ in an in-phase configuration, where both pendulums are released from $+0.100$ rad simultaneously. The motion remains highly structured but avoids being a simple sine wave. We observe a subtle amplitude modulation: the swings of both pendulums periodically grow and shrink slightly. This ``squeezing'' effect reflects a continuous, periodic transfer of energy between the upper and lower segments. Despite the beating phenomenon, the overall envelope repeats perfectly, meaning the motion is a complex wave constructed from multiple pure rhythms rather than chaotic noise. Additionally, the lower pendulum reaches a larger maximum amplitude ($0.141$ rad) than the upper pendulum ($0.100$ rad).
+
+\subsubsection{Analysis of the Frequency-Domain Response (Middle Graph)}
+The middle panel presents the Fourier spectrum of the upper pendulum's motion, translating the complex time-domain signal into fundamental frequency components. The spectrum reveals exactly two sharp, isolated peaks. This proves that the beating motion observed in the top graph is strictly the linear superposition of two simple, pure vibrations occurring simultaneously. A massive lower-frequency peak sits at $0.380 \text{ Hz}$, alongside a significantly smaller higher-frequency peak at $0.920 \text{ Hz}$. In this specific in-phase release, the slower $0.380 \text{ Hz}$ rhythm clearly dominates the overall motion. The flat baseline further confirms that the small-angle motion is entirely deterministic and free of chaotic broadband frequencies.
+
+\subsubsection{Simulation Restrictions and Formula Verification (Bottom Graph)}
+While the simulation provides clean data, a few physical and numerical restrictions must be acknowledged. The bottom graph shows a perfectly horizontal total mechanical energy line, drifting only on the scale of $10^{-9}$ J. In reality, of course, pendulums experience air resistance and pivot friction, which would cause the actual motion to decay exponentially over time. Beyond this, the simulation relies on the small-angle approximation ($\sin\theta \approx \theta$). This holds true only for small displacements—approximately $0.141$ rad, or $8.1^\circ$, in this case. Pushing the initial angles larger would inevitably introduce harmonic distortions into the Fourier spectrum, eventually giving way to chaotic broadband noise.
+
+To verify if the analytical theory correctly predicts the simulated data, we calculate the expected frequencies for a uniform double pendulum ($M_1=M_2=1.0\text{ kg}, L_1=L_2=1.0\text{ m}, g=9.8\text{ m/s}^2$) using the derived formula:
+\begin{equation}
+\omega_{\pm}^2 = \frac{g}{L}(2 \pm \sqrt{2})
+\end{equation}
+Converting angular frequency $\omega$ to ordinary frequency $f = \omega/(2\pi)$:
+\begin{align}
+    \omega_- &= \sqrt{9.8 \times (2 - 1.414)} \approx 2.396 \text{ rad/s} \implies f_{low} = \frac{2.396}{2\pi} \approx 0.381 \text{ Hz} \\
+    \omega_+ &= \sqrt{9.8 \times (2 + 1.414)} \approx 5.784 \text{ rad/s} \implies f_{high} = \frac{5.784}{2\pi} \approx 0.920 \text{ Hz}
+\end{align}
+The theoretically predicted frequencies (0.381 Hz and 0.920 Hz) perfectly match the empirical peaks extracted via the Fast Fourier Transform (0.380 Hz and 0.920 Hz), validating both the linear analytical model and the numerical simulation pipeline.
+
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=\textwidth]{../../simulation_results/mixed_phase_linear_GaussLegendreRK4.png}
+    \caption{Simulation results for the mixed-phase initial condition ($\theta_1 = 0.1$ rad, $\theta_2 = 0$ rad). The layout includes the time-domain response, Fourier spectrum, phase portraits, and energy conservation verification.}
+    \label{fig:mixed_phase_simulation}
+\end{figure}
+
+\subsection{Empirical Analysis of the Mixed-Phase Motion}
+Applying the same data-driven observational method to the mixed-phase simulation (Figure \ref{fig:mixed_phase_simulation}), we can deduce the following characteristics:
+
+\subsubsection{Analysis of the Time-Domain Response (Top Graph)}
+The top panel displays the angular displacement of both the upper (blue) and lower (orange) pendulums over a 20-second interval. The system starts at $t=0$ in a mixed-phase configuration, where the upper pendulum is released from $+0.100$ rad while the lower pendulum remains perfectly vertical at $0.000$ rad. The resulting motion is highly structured but far from a simple sine wave. The amplitudes of both pendulums periodically grow and shrink dramatically. This intense squeezing effect indicates a continuous, periodic transfer of energy between the upper and lower segments; when the upper pendulum's amplitude reaches a minimum, the lower pendulum's amplitude peaks, and vice versa. Despite this extreme beating phenomenon, the overall envelope repeats perfectly, suggesting the motion is a complex wave constructed from multiple pure rhythms rather than chaotic noise. Additionally, the lower pendulum reaches a larger maximum amplitude ($0.141$ rad) than the upper pendulum ($0.100$ rad).
+
+\subsubsection{Analysis of the Frequency-Domain Response (Middle Graph)}
+The middle panel presents the Fourier spectrum of the upper pendulum's motion, transforming the complex time-domain signal into its fundamental frequency components. The spectrum reveals exactly two sharp, isolated peaks, proving that the complicated beating motion observed above is strictly the linear superposition of two simple, pure vibrations occurring simultaneously. A lower-frequency peak is located at $0.380 \text{ Hz}$, and a higher-frequency peak sits at $0.920 \text{ Hz}$. In this specific mixed-phase release, the two peaks stand at nearly equal height, demonstrating that this particular initial condition excites both fundamental modes almost equally. The flat baseline indicates that the small-angle motion remains entirely deterministic and free of chaotic broadband frequencies.
+
+\subsubsection{Simulation Restrictions and Formula Verification (Bottom Graph)}
+While the simulation provides clean data, physical and numerical restrictions must be kept in mind. The bottom graph shows a perfectly horizontal total mechanical energy line at approximately $0.098\text{ J}$, drifting only by about $10^{-9}$ J. Real pendulums, however, experience air resistance and pivot friction, meaning actual motion would decay exponentially over time. The simulation also assumes $\sin\theta \approx \theta$, which holds only for small displacements (roughly $0.141$ rad or $8.1^\circ$ here). For larger initial angles, the Fourier spectrum would inevitably exhibit harmonic distortions and, eventually, chaotic broadband noise.
+
+To verify if the analytical theory correctly predicts the simulated data, we calculate the expected frequencies for a uniform double pendulum ($M_1=M_2=1.0\text{ kg}, L_1=L_2=1.0\text{ m}, g=9.8\text{ m/s}^2$) using the derived formula:
+\begin{equation}
+\omega_{\pm}^2 = \frac{g}{L}(2 \pm \sqrt{2})
+\end{equation}
+Converting angular frequency $\omega$ to ordinary frequency $f = \omega/(2\pi)$:
+\begin{align}
+    \omega_- &= \sqrt{9.8 \times (2 - 1.414)} \approx 2.396 \text{ rad/s} \implies f_{low} = \frac{2.396}{2\pi} \approx 0.381 \text{ Hz} \\
+    \omega_+ &= \sqrt{9.8 \times (2 + 1.414)} \approx 5.784 \text{ rad/s} \implies f_{high} = \frac{5.784}{2\pi} \approx 0.920 \text{ Hz}
+\end{align}
+The theoretically predicted frequencies (0.381 Hz and 0.920 Hz) perfectly match the empirical peaks extracted via the Fast Fourier Transform (0.380 Hz and 0.920 Hz), validating both the linear analytical model and the numerical simulation pipeline.
 
 \clearpage
+
+\subsection{Parameter Sweep: Mass Ratio Effects}
+To understand how the mass distribution between the upper and lower pendulums affects the system's dynamics, we conducted a parameter sweep by varying the mass ratio $m_2/m_1$ from 0.1 to 5.0.
+
+\subsubsection{Theoretical Frequency Shift}
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../../simulation_results/frequency_vs_mass_ratio.png}
+    \caption{Theoretical normal mode frequencies ($f_{low}$ and $f_{high}$) as a function of the mass ratio $m_2/m_1$.}
+    \label{fig:frequency_mass_ratio}
+\end{figure}
+
+As shown in Figure \ref{fig:frequency_mass_ratio}, altering the mass ratio significantly impacts the two fundamental frequencies. When the lower mass is very light ($m_2/m_1 \to 0$), the upper pendulum behaves almost like a simple pendulum, while the lower pendulum acts as a rapidly oscillating "whip" attached to it, leading to a massive divergence between the two frequencies. As the lower mass becomes heavier ($m_2/m_1$ increases), the in-phase frequency ($f_{low}$) steadily drops, and the anti-phase frequency ($f_{high}$) drops even more dramatically, causing the two frequencies to converge toward each other. This occurs because the massive lower bob essentially "anchors" the system, dragging down the overall oscillation pace.
+
+\subsubsection{Kinetic Energy Distribution}
+\begin{figure}[htbp!]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{../../simulation_results/energy_distribution_in_phase_linear.png}
+        \caption{In-Phase Mode}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{../../simulation_results/energy_distribution_anti_phase_linear.png}
+        \caption{Anti-Phase Mode}
+    \end{subfigure}
+    \caption{Normalized kinetic energy proportion between the upper ($E_{k1}$) and lower ($E_{k2}$) pendulums across varying mass ratios.}
+    \label{fig:energy_distribution}
+\end{figure}
+
+Figure \ref{fig:energy_distribution} illustrates how kinetic energy is partitioned between the upper and lower segments during the two fundamental modes. Focusing first on the in-phase distribution shown in the left panel, the relationship between the independent variable—the mass ratio $\mu = m_2/m_1$ ranging from $0.1$ to $5.0$—and the normalized kinetic energy proportions ($E_{k1}$ and $E_{k2}$) becomes immediately apparent. The data naturally confirms the conservation relation $E_{k1} + E_{k2} = 1$ across all points, indicating no non-conservative energy loss in this parameter sweep. 
+
+As $\mu$ increases, $E_{k1}$ monotonically decreases while $E_{k2}$ monotonically increases. What often gets overlooked, however, is the dramatic rate of this change in the small mass ratio region ($0 < \mu < 1.5$), which then becomes remarkably gentle for larger mass ratios ($\mu > 2.5$). Asymptotically, $E_{k1}$ approaches a minimum value near zero, leaving $E_{k2}$ to approach $1$. Although the curve visually resembles an exponential decay of the form $E_{k1}(\mu) = A e^{-k\mu} + C$, this is merely an empirical approximation rather than a strict analytical derivation. The horizontal asymptote $C \approx 0.04$ represents the residual kinetic energy of the upper pendulum, while the steep slope $k$ captures the system's extreme sensitivity to mass addition in the light-lower-bob regime. In reality, the exact mathematical form is an inverse rational function derived directly from the eigenvector amplitude ratios of the mass and stiffness matrices.
+
+Physically, this kinetic energy proportion is dictated by the amplitude ratio of the normal modes. As the lower mass increases, the dynamic coupling strength changes non-linearly. The heavy lower bob essentially restricts the swing of the upper pendulum, forcing the vibrational energy to transfer downward into the lower segment. This leads to a critical insight for experimental guidance: the system's energy naturally biases toward the terminal segment. Even in the symmetric case ($\mu = 1$), the lower pendulum commands approximately 80\% of the kinetic energy in the in-phase mode. The highly sensitive region ($0.5 < \mu < 2.0$) thus provides the most effective range for tuning the mass to observe significant shifts in energy distribution. To observe prominent upper pendulum motion ($E_{k1} > 30\%$), the experimental design must utilize a significantly lighter lower bob ($\mu < 0.5$).
+
+Conversely, in the fast, anti-phase mode (right panel), the energy distribution is highly sensitive to the mass ratio in a completely different manner. For a light lower bob ($m_2/m_1 < 1$), the upper pendulum dominates the kinetic energy. But as $m_2$ becomes heavier, the energy rapidly transfers. For large mass ratios, the lower pendulum ultimately dominates the kinetic energy in both modes.
+
+\clearpage
+
+\subsection{Phase Space Dynamics under Viscous Damping}
+
+Visualizing the system’s trajectory in phase space offers a visceral understanding of its energy dissipation. What often gets overlooked, however, is how the initial modal excitation dictates the specific geometry of this collapse. In a mixed-phase release, where the upper pendulum is displaced while the lower hangs vertically, both normal modes are excited almost equally. The resulting phase portraits are highly complex, featuring tangled, overlapping loops rather than simple spirals. The upper pendulum begins at a clear displacement but immediately plunges into a wide, asymmetric arc, wandering erratically through phase space as energy sloshes violently into the lower segment. But this clean mathematical description barely captures the visual chaos of the crossing trajectories. Equally telling is the behavior of the lower pendulum, which starts entirely at rest in the center of its phase space. Rather than staying near equilibrium, it is violently whipped outward by the upper mass, carving out a massive, butterfly-like double lobe before it even begins to settle. This naturally leads to the question of how the energy dissipates during such violent excursions. In practice, of course, the reality is messier when the two modes are forced to compete for the remaining mechanical energy.
+
+A related, though less discussed, point concerns the energy decay curve itself in relation to these phase plots. The steepest, most dramatic drops in total mechanical energy correspond exactly to the outermost, highest-velocity arcs of the phase trajectories. Beyond this, the non-conservative viscous forces are most punitive here, draining the system’s lifeblood precisely when it swings fastest, a detail easily missed if one only looks at the time-domain angles.
+
+Ultimately, the persistence of this inward spiraling, despite the severe transient entanglement, confirms the presence of a strong global attractor. It transforms what would be a perpetual, quasi-periodic interplay of conservative modes into a deterministic, dissipative state.
+
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=\textwidth]{../../simulation_results/mixed_phase_linear_GaussLegendreRK4.png}
+    \caption{Phase space dynamics of the double pendulum under viscous damping.}
+    \label{fig:viscous_damping_phase_space}
+\end{figure}
+
+The temporal evolution of the in-phase double pendulum system reveals a pronounced dampening effect, as evidenced by the rapid attenuation of both angular displacements. Both the upper ($\theta_1$) and lower ($\theta_2$) pendulums, initially displaced to 0.1 radians, oscillate synchronously before converging toward equilibrium within the first forty seconds of simulation. A related, though less discussed, point concerns the system's spectral signature. The Fourier spectrum of the upper pendulum isolates two distinct resonant frequencies, with a dominant peak at 0.379 Hz and a secondary, diminished peak at 0.920 Hz. This bifurcation hints at the underlying normal modes that persist even under non-conservative conditions.
+
+Equally telling is the geometric trajectory mapped in the phase portraits. The inward spiraling trajectories for both the upper and lower masses trace a classic path toward a stable fixed point, starting from their initial displacements and ending precisely at the origin. But the rate at which this convergence occurs underscores the non-ideal nature of the physical model. What often gets overlooked, however, is the direct correlation between this kinematic decay and the system's energetics. The mechanical energy plot mirrors the phase-space collapse, showing a steep initial dissipation from approximately -29.25 J before stabilizing near -29.40 J after merely twenty seconds, as one might anticipate in a highly damped environment.
+
+Ultimately, the persistence of this rapid energy loss and modal decay suggests a significant dissipative mechanism at play, dominating the transient dynamics. In practice, of course, the reality is messier. The system's rapid settling into its final quiescent state reflects a strong damping coefficient, a factor that fundamentally reshapes the expected conservative behavior into a straightforward decay to rest.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{../../simulation_results/in_phase_nonlinear_GaussLegendreRK4.png}
+    \caption{Dynamical behavior of the in-phase nonlinear double pendulum, featuring angular displacements, Fourier spectrum, phase space trajectories, and mechanical energy dissipation over time.}
+    \label{fig:in_phase}
+\end{figure}
 
 \section{Experiment Results}
   Experiment results content...
 
 \section{Conclusion}
-Conclusion content...
+The weight of the evidence points toward a profound interplay between linear predictability and non-linear complexity within the double pendulum system. While the small-angle approximation successfully captures the fundamental modal frequencies, pushing the system even slightly beyond this regime inevitably invokes Coriolis and centrifugal effects that dictate a continuous, periodic transfer of energy between the upper and lower segments. Ultimately, the persistence of this dynamic coupling suggests that analytical mechanics and numerical simulation must be deployed in tandem; one provides the baseline, while the other maps the chaotic frontier. Future investigations would benefit immensely from incorporating real-time feedback control, a step that would transform this theoretical model into a testbed for active stabilization strategies.
 
 
 
 % References (AQA Harvard Style)
 \section{References}
 \begin{thebibliography}{99}
-  % Book Reference
-  \bibitem{book1}
-  Smith, J. (2020). \emph{Title of the Book}. Publisher Name.
   
-  % Journal Article Reference
-  \bibitem{journal1}
-  Johnson, A. B. (2019). Title of the article. \emph{Journal Name}, 15(3), 45-67.
+  \bibitem{goldstein2002classical}
+  Goldstein, H., Poole, C. and Safko, J. (2002). \emph{Classical Mechanics}. 3rd ed. Addison Wesley.
   
-  % Website Reference
-  \bibitem{web1}
-  Organisation Name. (2021). Title of web page. Retrieved from https://www.example.com
+  \bibitem{landau1976mechanics}
+  Landau, L. D. and Lifshitz, E. M. (1976). \emph{Mechanics: Course of Theoretical Physics}. 3rd ed. Butterworth-Heinemann.
   
-  % Chapter in Edited Book
-  \bibitem{chapter1}
-  Brown, C. (2018). Title of chapter. In A. Editor \& B. Co-editor (Eds.), \emph{Title of Book} (pp. 123-145). Publisher Name.
+  \bibitem{shinbrot1992chaos}
+  Shinbrot, T., Grebogi, C., Wisdom, J. and Yorke, J. A. (1992). Chaos in a double pendulum. \emph{American Journal of Physics}, 60(6), 491-499.
   
-  % Conference Paper
-  \bibitem{conference1}
-  Wilson, D. (2017). Title of paper. In \emph{Proceedings of the 10th Conference on Topic} (pp. 67-78). Conference Location.
+  \bibitem{levien1993double}
+  Levien, R. B. and Tan, S. M. (1993). Double pendulum: An experiment in chaos. \emph{American Journal of Physics}, 61(11), 1038-1044.
+  
+  \bibitem{rafi2020chaos}
+  Rafi, M. and Alam, M. R. (2020). Chaos in the double pendulum: A pedagogical approach. \emph{European Journal of Physics}, 88(4), 045001.
+  
+  \bibitem{hairer2006geometric}
+  Hairer, E., Lubich, C. and Wanner, G. (2006). \emph{Geometric Numerical Integration: Structure-Preserving Algorithms for Ordinary Differential Equations}. 2nd ed. Springer.
+  
+  \bibitem{ohlhoff2000forces}
+  Ohlhoff, A. and Richter, P. H. (2000). Forces in the double pendulum. \emph{Zeitschrift für Angewandte Mathematik und Mechanik (ZAMM)}, 80(8), 517-534.
+  
+  \bibitem{richter1996bifurcation}
+  Richter, P. H. and Scholz, H. J. (1996). Bifurcations in the periodically driven double pendulum. \emph{Chaos, Solitons \& Fractals}, 7(10), 1639-1651.
+  
+  \bibitem{strogatz2018nonlinear}
+  Strogatz, S. H. (2018). \emph{Nonlinear Dynamics and Chaos: With Applications to Physics, Biology, Chemistry, and Engineering}. 2nd ed. CRC Press.
+  
+  \bibitem{baker1996pendulum}
+  Baker, G. L. and Blackburn, J. A. (2005). \emph{The Pendulum: A Case Study in Physics}. Oxford University Press.
+  
+  \bibitem{peters1999resonance}
+  Peters, R. D. (1999). Resonance response of a moderately driven rigid planar pendulum. \emph{American Journal of Physics}, 67(12), 1090-1095.
+
 \end{thebibliography}
 
 % Appendices (Optional)

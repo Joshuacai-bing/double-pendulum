@@ -1,0 +1,14 @@
+\section*{Analysis of In-Phase Nonlinear Dynamics}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{simulation_results/in_phase_nonlinear_GaussLegendreRK4.png}
+    \caption{Dynamical behavior of the in-phase nonlinear double pendulum, featuring angular displacements, Fourier spectrum, phase space trajectories, and mechanical energy dissipation over time.}
+    \label{fig:in_phase}
+\end{figure}
+
+The temporal evolution of the in-phase double pendulum system reveals a pronounced dampening effect, as evidenced by the rapid attenuation of both angular displacements. Both the upper ($\theta_1$) and lower ($\theta_2$) pendulums, initially displaced to 0.1 radians, oscillate synchronously before converging toward equilibrium within the first forty seconds of simulation. A related, though less discussed, point concerns the system's spectral signature. The Fourier spectrum of the upper pendulum isolates two distinct resonant frequencies, with a dominant peak at 0.379 Hz and a secondary, diminished peak at 0.920 Hz. This bifurcation hints at the underlying normal modes that persist even under non-conservative conditions.
+
+Equally telling is the geometric trajectory mapped in the phase portraits. The inward spiraling trajectories for both the upper and lower masses trace a classic path toward a stable fixed point, starting from their initial displacements and ending precisely at the origin. But the rate at which this convergence occurs underscores the non-ideal nature of the physical model. What often gets overlooked, however, is the direct correlation between this kinematic decay and the system's energetics. The mechanical energy plot mirrors the phase-space collapse, showing a steep initial dissipation from approximately -29.25 J before stabilizing near -29.40 J after merely twenty seconds, as one might anticipate in a highly damped environment.
+
+Ultimately, the persistence of this rapid energy loss and modal decay suggests a significant dissipative mechanism at play, dominating the transient dynamics. In practice, of course, the reality is messier. The system's rapid settling into its final quiescent state reflects a strong damping coefficient, a factor that fundamentally reshapes the expected conservative behavior into a straightforward decay to rest.
